@@ -13,7 +13,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.main import app
 from app.database import get_db
-from app.models import Base, Oficina, Pessoa, Professor, Tema, User
+from app.models import Base, Oficina, Pessoa, Professor, Tema, Tutor, User
 from app.models.oficina import OficinaStatus
 from app.utils import get_password_hash
 
@@ -141,6 +141,23 @@ def professor_entity(db_session: Session, professor_user: User) -> Professor:
     db_session.commit()
     db_session.refresh(professor)
     return professor
+
+
+@pytest.fixture()
+def tutor_entity(db_session: Session, tutor_user: User) -> Tutor:
+    tutor = Tutor(
+        pessoa=tutor_user.pessoa,
+        faculdade="UTFPR",
+        curso="Computacao",
+        semestre=5,
+        carga_horaria_maxima_semanal=15,
+        carga_horaria_atual=0,
+        tipo_vinculo="Voluntario",
+    )
+    db_session.add(tutor)
+    db_session.commit()
+    db_session.refresh(tutor)
+    return tutor
 
 
 @pytest.fixture()

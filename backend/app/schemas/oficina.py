@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 from app.models.oficina import OficinaStatus
 
+from .types import RelaxedEmailStr
 from .tema import TemaRead
 
 
@@ -49,3 +50,12 @@ class OficinaRead(OficinaBase):
 
     class Config:
         from_attributes = True
+
+
+class TutorAssignmentRead(BaseModel):
+    tutor_id: UUID
+    nome: str
+    email: RelaxedEmailStr
+    carga_horaria_maxima_semanal: int
+    carga_horaria_alocada: float
+

@@ -8,7 +8,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import Oficina, Professor, Tema
+from ..models import Oficina, Professor, Tema, Tutor
 from ..models.oficina import OficinaStatus
 from ..schemas import OficinaCreate, OficinaUpdate
 
@@ -30,6 +30,22 @@ def _resolve_temas(db: Session, tema_ids: list[UUID]) -> list[Tema]:
     if missing:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tema não encontrado")
     return temas
+
+
+def _get_tutor_or_404(db: Session, tutor_id: UUID) -> Tutor:
+    tutor = db.get(Tutor, tutor_id)
+    if not tutor:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tutor não encontrado")
+    return tutor
+
+
+def _calculate_tutor_load(tutor: Tutor, *, exclude_oficina_id: UUID | None = None) -> int:
+    load = 0
+    for oficina in tutor.oficinas:
+        if exclude_oficina_id and oficina.id == exclude_oficina_id:
+            continue
+        load += oficina.carga_horaria
+    return load
 
 
 def list_oficinas(
@@ -106,4 +122,45 @@ def update_oficina(db: Session, oficina_id: UUID, payload: OficinaUpdate) -> Ofi
 def delete_oficina(db: Session, oficina_id: UUID) -> None:
     oficina = get_oficina(db, oficina_id)
     db.delete(oficina)
+    db.commit()
+
+
+def list_oficina_tutores(db: Session, oficina_id: UUID) -> list[Tutor]:
+    oficina = get_oficina(db, oficina_id)
+    return oficina.tutores
+
+
+def assign_tutor_to_oficina(db: Session, oficina_id: UUID, tutor_id: UUID) -> Tutor:
+    oficina = get_oficina(db, oficina_id)
+    tutor = _get_tutor_or_404(db, tutor_id)
+
+    if tutor in oficina.tutores:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Tutor já atribuído")
+
+    current_load = _calculate_tutor_load(tutor)
+    new_load = current_load + oficina.carga_horaria
+    if new_load > tutor.carga_horaria_maxima_semanal:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Carga horária excedida")
+
+    oficina.tutores.append(tutor)
+    tutor.carga_horaria_atual = new_load
+    db.add(oficina)
+    db.add(tutor)
+    db.commit()
+    db.refresh(tutor)
+    return tutor
+
+
+def remove_tutor_from_oficina(db: Session, oficina_id: UUID, tutor_id: UUID) -> None:
+    oficina = get_oficina(db, oficina_id)
+    tutor = _get_tutor_or_404(db, tutor_id)
+
+    if tutor not in oficina.tutores:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tutor não vinculado")
+
+    oficina.tutores.remove(tutor)
+    updated_load = _calculate_tutor_load(tutor, exclude_oficina_id=oficina.id)
+    tutor.carga_horaria_atual = updated_load
+    db.add(oficina)
+    db.add(tutor)
     db.commit()

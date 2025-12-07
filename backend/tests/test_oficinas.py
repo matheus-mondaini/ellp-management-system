@@ -208,3 +208,61 @@ def test_aluno_cannot_list_oficinas(client, aluno_user):
     response = client.get("/oficinas", headers=headers)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_admin_assigns_tutor_to_oficina(client, admin_user, tutor_entity, oficina):
+    headers = _auth_headers(client, admin_user.email, "admin12345")
+
+    assign = client.post(
+        f"/oficinas/{oficina.id}/tutores/{tutor_entity.id}",
+        headers=headers,
+    )
+
+    assert assign.status_code == status.HTTP_201_CREATED
+    data = assign.json()
+    assert data["tutor_id"] == str(tutor_entity.id)
+    assert data["carga_horaria_alocada"] == oficina.carga_horaria
+
+    listing = client.get(f"/oficinas/{oficina.id}/tutores", headers=headers)
+    assert listing.status_code == status.HTTP_200_OK
+    assert len(listing.json()) == 1
+
+
+def test_assign_tutor_respects_capacity(
+    client, admin_user, tutor_entity, oficina, db_session
+):
+    tutor_entity.carga_horaria_maxima_semanal = 5
+    db_session.add(tutor_entity)
+    db_session.commit()
+
+    headers = _auth_headers(client, admin_user.email, "admin12345")
+    response = client.post(
+        f"/oficinas/{oficina.id}/tutores/{tutor_entity.id}",
+        headers=headers,
+    )
+
+    assert response.status_code == status.HTTP_409_CONFLICT
+
+
+def test_professor_removes_tutor(client, admin_user, tutor_entity, oficina):
+    headers = _auth_headers(client, admin_user.email, "admin12345")
+    client.post(f"/oficinas/{oficina.id}/tutores/{tutor_entity.id}", headers=headers)
+
+    delete = client.delete(
+        f"/oficinas/{oficina.id}/tutores/{tutor_entity.id}",
+        headers=headers,
+    )
+
+    assert delete.status_code == status.HTTP_204_NO_CONTENT
+    listing = client.get(f"/oficinas/{oficina.id}/tutores", headers=headers)
+    assert listing.json() == []
+
+
+def test_tutor_cannot_assign_other_tutor(client, tutor_user, tutor_entity, oficina):
+    headers = _auth_headers(client, tutor_user.email, "tutor12345")
+    response = client.post(
+        f"/oficinas/{oficina.id}/tutores/{tutor_entity.id}",
+        headers=headers,
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN

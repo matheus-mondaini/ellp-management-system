@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..middlewares import require_role
 from ..models.oficina import OficinaStatus
-from ..schemas import OficinaCreate, OficinaRead, OficinaUpdate
+from ..schemas import OficinaCreate, OficinaRead, OficinaUpdate, TutorAssignmentRead
 from ..services import oficina_service
 
 router = APIRouter(prefix="/oficinas", tags=["oficinas"])
@@ -72,4 +72,51 @@ def delete_oficina(
     _: None = AdminOrProfessor,
 ) -> Response:
     oficina_service.delete_oficina(db, oficina_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+def _serialize_tutor_assignment(tutor) -> TutorAssignmentRead:
+    pessoa = tutor.pessoa
+    return TutorAssignmentRead(
+        tutor_id=tutor.id,
+        nome=pessoa.nome_completo,
+        email=pessoa.user.email,
+        carga_horaria_maxima_semanal=tutor.carga_horaria_maxima_semanal,
+        carga_horaria_alocada=float(tutor.carga_horaria_atual or 0),
+    )
+
+
+@router.get("/{oficina_id}/tutores", response_model=list[TutorAssignmentRead])
+def list_oficina_tutores(
+    oficina_id: UUID,
+    db: Session = Depends(get_db),
+    _: None = AdminOrProfessor,
+) -> list[TutorAssignmentRead]:
+    tutores = oficina_service.list_oficina_tutores(db, oficina_id)
+    return [_serialize_tutor_assignment(tutor) for tutor in tutores]
+
+
+@router.post(
+    "/{oficina_id}/tutores/{tutor_id}",
+    response_model=TutorAssignmentRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def assign_tutor(
+    oficina_id: UUID,
+    tutor_id: UUID,
+    db: Session = Depends(get_db),
+    _: None = AdminOrProfessor,
+) -> TutorAssignmentRead:
+    tutor = oficina_service.assign_tutor_to_oficina(db, oficina_id, tutor_id)
+    return _serialize_tutor_assignment(tutor)
+
+
+@router.delete("/{oficina_id}/tutores/{tutor_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_tutor(
+    oficina_id: UUID,
+    tutor_id: UUID,
+    db: Session = Depends(get_db),
+    _: None = AdminOrProfessor,
+) -> Response:
+    oficina_service.remove_tutor_from_oficina(db, oficina_id, tutor_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

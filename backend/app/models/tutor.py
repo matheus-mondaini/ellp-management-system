@@ -50,9 +50,15 @@ class Tutor(Base):
     )
 
     pessoa: Mapped["Pessoa"] = relationship(back_populates="tutor")
+    oficinas: Mapped[list["Oficina"]] = relationship(
+        "Oficina",
+        secondary="oficina_tutores",
+        back_populates="tutores",
+    )
 
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
     from .pessoa import Pessoa
+    from .oficina import Oficina

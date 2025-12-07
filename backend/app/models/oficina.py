@@ -6,13 +6,44 @@ from datetime import date, datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, Date, DateTime, Enum, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    Date,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    Table,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .tema import oficina_tema_table
 
+
+oficina_tutor_table = Table(
+    "oficina_tutores",
+    Base.metadata,
+    Column(
+        "oficina_id",
+        UUID(as_uuid=True),
+        ForeignKey("oficinas.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "tutor_id",
+        UUID(as_uuid=True),
+        ForeignKey("tutores.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    UniqueConstraint("oficina_id", "tutor_id", name="uq_oficina_tutor_unique"),
+)
 
 class OficinaStatus(StrEnum):
     """Lifecycle status options for workshops."""
@@ -65,8 +96,14 @@ class Oficina(Base):
         secondary=oficina_tema_table,
         back_populates="oficinas",
     )
+    tutores: Mapped[list["Tutor"]] = relationship(
+        "Tutor",
+        secondary=oficina_tutor_table,
+        back_populates="oficinas",
+    )
 
 
 if TYPE_CHECKING:  # pragma: no cover
     from .professor import Professor
     from .tema import Tema
+    from .tutor import Tutor
