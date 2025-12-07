@@ -273,15 +273,10 @@ Status inicial: `planejado`
 ## Próximos Passos
 
 1. ✅ Validar requisitos
-2. ⬜ Criar diagrama de arquitetura detalhado
-3. ⬜ Definir schema completo do banco no Supabase
-4. ⬜ Configurar repositório GitHub com template
-5. ⬜ Setup do ambiente de desenvolvimento
-6. ⬜ Definir padrões de código e style guides
-7. ⬜ Criar template de certificado (design)
-8. ⬜ Kickoff do Sprint 1
-
----
-
-> Versão 0.1
-> Documento sujeito a ajustes após validação com professor
+2. ✅ Criar diagrama de arquitetura detalhado
+3. ✅ Definir schema completo do banco no Supabase
+4. ✅ Configurar repositório GitHub com template
+5. ✅ Setup do ambiente de desenvolvimento
+6. ✅ Definir padrões de código e style guides
+7. ✅ Criar template de certificado (design)
+8. ✅ Kickoff do Sprint 1
