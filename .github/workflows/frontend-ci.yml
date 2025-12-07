@@ -1,0 +1,36 @@
+name: frontend-ci
+
+on:
+  push:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+  pull_request:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint || npm run lint -- --no-error-on-unmatched-pattern
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
