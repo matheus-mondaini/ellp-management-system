@@ -1,10 +1,10 @@
-"""API tests for RF-003 (Cadastro de Oficinas)."""
+"""API tests for RF-003/RF-004 (Cad. e Catálogo de Oficinas)."""
 from datetime import date
 from uuid import uuid4
 
 from fastapi import status
 
-from app.models import Tema
+from app.models import Oficina, Tema
 from app.models.oficina import OficinaStatus
 
 
@@ -111,5 +111,100 @@ def test_tutor_cannot_create_oficina(client, tutor_user, professor_entity, tema)
             "tema_ids": [str(tema.id)],
         },
     )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_tutor_lists_oficinas_with_filters(client, tutor_user, db_session, professor_entity):
+    tema_robotica = Tema(nome="Robotica", descricao="Robotica")
+    tema_ia = Tema(nome="IA", descricao="Inteligencia Artificial")
+    db_session.add_all([tema_robotica, tema_ia])
+    db_session.commit()
+    db_session.refresh(tema_robotica)
+    db_session.refresh(tema_ia)
+
+    abertas = Oficina(
+        professor_id=professor_entity.id,
+        titulo="Robotica 101",
+        carga_horaria=8,
+        capacidade_maxima=12,
+        data_inicio=date(2025, 6, 1),
+        data_fim=date(2025, 6, 10),
+        local="UTFPR",
+        status=OficinaStatus.INSCRICOES_ABERTAS,
+        temas=[tema_robotica],
+    )
+    planejada = Oficina(
+        professor_id=professor_entity.id,
+        titulo="IA Kids",
+        carga_horaria=8,
+        capacidade_maxima=10,
+        data_inicio=date(2025, 7, 1),
+        data_fim=date(2025, 7, 10),
+        local="UTFPR",
+        status=OficinaStatus.PLANEJADA,
+        temas=[tema_ia],
+    )
+    db_session.add_all([abertas, planejada])
+    db_session.commit()
+
+    headers = _auth_headers(client, tutor_user.email, "tutor12345")
+    response = client.get(
+        "/oficinas",
+        headers=headers,
+        params={
+            "status": OficinaStatus.INSCRICOES_ABERTAS,
+            "tema_id": str(tema_robotica.id),
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    payload = response.json()
+    assert len(payload) == 1
+    assert payload[0]["titulo"] == "Robotica 101"
+
+
+def test_list_oficinas_period_filter(client, admin_user, db_session, professor_entity, tema):
+    oficina_jan = Oficina(
+        professor_id=professor_entity.id,
+        titulo="Oficina Janeiro",
+        carga_horaria=6,
+        capacidade_maxima=10,
+        data_inicio=date(2025, 1, 5),
+        data_fim=date(2025, 1, 20),
+        local="UTFPR",
+        status=OficinaStatus.PLANEJADA,
+        temas=[tema],
+    )
+    oficina_mar = Oficina(
+        professor_id=professor_entity.id,
+        titulo="Oficina Marco",
+        carga_horaria=6,
+        capacidade_maxima=10,
+        data_inicio=date(2025, 3, 5),
+        data_fim=date(2025, 3, 20),
+        local="UTFPR",
+        status=OficinaStatus.PLANEJADA,
+        temas=[tema],
+    )
+    db_session.add_all([oficina_jan, oficina_mar])
+    db_session.commit()
+
+    headers = _auth_headers(client, admin_user.email, "admin12345")
+    response = client.get(
+        "/oficinas",
+        headers=headers,
+        params={"data_inicio": "2025-03-01", "data_fim": "2025-03-31"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    payload = response.json()
+    assert len(payload) == 1
+    assert payload[0]["titulo"] == "Oficina Marco"
+
+
+def test_aluno_cannot_list_oficinas(client, aluno_user):
+    headers = _auth_headers(client, aluno_user.email, "aluno12345")
+    response = client.get("/oficinas", headers=headers)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN

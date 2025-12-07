@@ -1,6 +1,7 @@
-"""Business logic for Oficina management (RF-003)."""
+"""Business logic for Oficina management (RF-003/RF-004)."""
 from __future__ import annotations
 
+from datetime import date
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -8,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models import Oficina, Professor, Tema
+from ..models.oficina import OficinaStatus
 from ..schemas import OficinaCreate, OficinaUpdate
 
 
@@ -30,8 +32,23 @@ def _resolve_temas(db: Session, tema_ids: list[UUID]) -> list[Tema]:
     return temas
 
 
-def list_oficinas(db: Session) -> list[Oficina]:
+def list_oficinas(
+    db: Session,
+    *,
+    status_filter: OficinaStatus | None = None,
+    tema_id: UUID | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
+) -> list[Oficina]:
     stmt = select(Oficina).order_by(Oficina.data_inicio.asc(), Oficina.titulo.asc())
+    if status_filter:
+        stmt = stmt.where(Oficina.status == status_filter)
+    if start_date:
+        stmt = stmt.where(Oficina.data_inicio >= start_date)
+    if end_date:
+        stmt = stmt.where(Oficina.data_fim <= end_date)
+    if tema_id:
+        stmt = stmt.join(Oficina.temas).where(Tema.id == tema_id).distinct()
     return db.scalars(stmt).all()
 
 
