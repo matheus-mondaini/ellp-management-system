@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import uuid
 from collections.abc import Iterator
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,7 +13,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.main import app
 from app.database import get_db
-from app.models import Base, Oficina, Pessoa, Professor, Tema, Tutor, User
+from app.models import Aluno, Base, Oficina, Pessoa, Professor, Tema, Tutor, User
 from app.models.oficina import OficinaStatus
 from app.utils import get_password_hash
 
@@ -136,6 +136,39 @@ def aluno_user(db_session: Session) -> User:
 
 
 @pytest.fixture()
+def aluno_entity(db_session: Session, aluno_user: User) -> Aluno:
+    aluno = Aluno(
+        pessoa=aluno_user.pessoa,
+        responsavel_nome="Responsável",
+        responsavel_telefone="43977776666",
+    )
+    db_session.add(aluno)
+    db_session.commit()
+    db_session.refresh(aluno)
+    return aluno
+
+
+@pytest.fixture()
+def second_aluno_entity(db_session: Session) -> Aluno:
+    user = _seed_user(
+        db_session,
+        email="aluno2@ellp.test",
+        password="aluno12345",
+        role="aluno",
+        nome="Aluno 2",
+    )
+    aluno = Aluno(
+        pessoa=user.pessoa,
+        responsavel_nome="Responsável 2",
+        responsavel_telefone="43966665555",
+    )
+    db_session.add(aluno)
+    db_session.commit()
+    db_session.refresh(aluno)
+    return aluno
+
+
+@pytest.fixture()
 def professor_entity(db_session: Session, professor_user: User) -> Professor:
     professor = Professor(
         pessoa=professor_user.pessoa,
@@ -203,14 +236,16 @@ def tema(db_session: Session) -> Tema:
 
 @pytest.fixture()
 def oficina(db_session: Session, professor_entity: Professor, tema: Tema) -> Oficina:
+    inicio = date.today() + timedelta(days=10)
+    fim = inicio + timedelta(days=10)
     oficina = Oficina(
         professor_id=professor_entity.id,
         titulo="Robotica Criativa",
         descricao="Oficina pratica",
         carga_horaria=10,
         capacidade_maxima=20,
-        data_inicio=date(2025, 1, 10),
-        data_fim=date(2025, 1, 20),
+        data_inicio=inicio,
+        data_fim=fim,
         local="UTFPR",
         status=OficinaStatus.PLANEJADA,
         temas=[tema],
