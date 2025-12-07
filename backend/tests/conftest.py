@@ -13,7 +13,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.main import app
 from app.database import get_db
-from app.models import Base, Pessoa, User
+from app.models import Base, Pessoa, Professor, Tema, User
 from app.utils import get_password_hash
 
 TEST_DATABASE_URL = "sqlite+pysqlite:///:memory:"
@@ -99,3 +99,31 @@ def professor_user(db_session: Session) -> User:
         role="professor",
         nome="Professor",
     )
+
+
+@pytest.fixture()
+def professor_entity(db_session: Session, professor_user: User) -> Professor:
+    professor = Professor(
+        pessoa=professor_user.pessoa,
+        faculdade="UTFPR",
+        departamento="Computacao",
+        titulacao="Mestre",
+        email_institucional="professor@ellp.test",
+        segundo_email=None,
+        coordenador=False,
+        area_atuacao="Robotica",
+        observacoes=None,
+    )
+    db_session.add(professor)
+    db_session.commit()
+    db_session.refresh(professor)
+    return professor
+
+
+@pytest.fixture()
+def tema(db_session: Session) -> Tema:
+    tema = Tema(nome=f"Tema {uuid.uuid4().hex[:8]}", descricao="Robotica e programacao")
+    db_session.add(tema)
+    db_session.commit()
+    db_session.refresh(tema)
+    return tema
