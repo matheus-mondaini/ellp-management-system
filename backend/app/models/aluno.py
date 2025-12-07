@@ -51,9 +51,15 @@ class Aluno(Base):
     )
 
     pessoa: Mapped["Pessoa"] = relationship(back_populates="aluno")
+    inscricoes: Mapped[list["Inscricao"]] = relationship(
+        "Inscricao",
+        back_populates="aluno",
+        cascade="all, delete-orphan",
+    )
 
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
     from .pessoa import Pessoa
+    from .inscricao import Inscricao

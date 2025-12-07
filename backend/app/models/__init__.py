@@ -7,6 +7,7 @@ from .tutor import Tutor
 from .professor import Professor
 from .tema import Tema
 from .oficina import Oficina, OficinaStatus
+from .inscricao import Inscricao, InscricaoStatus
 
 __all__ = [
     "Base",
@@ -18,4 +19,6 @@ __all__ = [
     "Tema",
     "Oficina",
     "OficinaStatus",
+    "Inscricao",
+    "InscricaoStatus",
 ]

@@ -101,9 +101,15 @@ class Oficina(Base):
         secondary=oficina_tutor_table,
         back_populates="oficinas",
     )
+    inscricoes: Mapped[list["Inscricao"]] = relationship(
+        "Inscricao",
+        back_populates="oficina",
+        cascade="all, delete-orphan",
+    )
 
 
 if TYPE_CHECKING:  # pragma: no cover
     from .professor import Professor
     from .tema import Tema
     from .tutor import Tutor
+    from .inscricao import Inscricao
