@@ -30,3 +30,6 @@ reports/
 # Docker
 *.log
 .env
+
+# Misc
+misc/
