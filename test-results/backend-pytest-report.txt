@@ -1,0 +1,83 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.0, pytest-8.3.2, pluggy-1.6.0
+rootdir: /Users/startse/Documents/Estudos/UTFPR/integration-workshop/backend
+plugins: asyncio-0.23.8, cov-5.0.0, anyio-4.12.0
+asyncio: mode=Mode.STRICT
+collected 40 items
+
+tests/test_auth.py ....                                                  [ 10%]
+tests/test_health.py .                                                   [ 12%]
+tests/test_inscricoes.py ......                                          [ 27%]
+tests/test_oficinas.py ..............                                    [ 62%]
+tests/test_oficinas_models.py ..                                         [ 67%]
+tests/test_professores.py ...                                            [ 75%]
+tests/test_temas.py ......                                               [ 90%]
+tests/test_users.py ....                                                 [100%]
+
+=============================== warnings summary ===============================
+../.venv/lib/python3.13/site-packages/pydantic/_internal/_config.py:291
+../.venv/lib/python3.13/site-packages/pydantic/_internal/_config.py:291
+../.venv/lib/python3.13/site-packages/pydantic/_internal/_config.py:291
+../.venv/lib/python3.13/site-packages/pydantic/_internal/_config.py:291
+../.venv/lib/python3.13/site-packages/pydantic/_internal/_config.py:291
+../.venv/lib/python3.13/site-packages/pydantic/_internal/_config.py:291
+  /Users/startse/Documents/Estudos/UTFPR/integration-workshop/.venv/lib/python3.13/site-packages/pydantic/_internal/_config.py:291: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+tests/test_auth.py: 2 warnings
+tests/test_inscricoes.py: 9 warnings
+tests/test_oficinas.py: 22 warnings
+tests/test_professores.py: 3 warnings
+tests/test_temas.py: 7 warnings
+tests/test_users.py: 6 warnings
+  /Users/startse/Documents/Estudos/UTFPR/integration-workshop/.venv/lib/python3.13/site-packages/jose/jwt.py:311: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = timegm(datetime.utcnow().utctimetuple())
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform darwin, python 3.13.0-final-0 ----------
+Name                                 Stmts   Miss  Cover   Missing
+------------------------------------------------------------------
+app/__init__.py                          0      0   100%
+app/config.py                           16      0   100%
+app/database.py                         12      4    67%   22-26
+app/main.py                             11      0   100%
+app/middlewares/__init__.py              2      0   100%
+app/middlewares/auth_middleware.py      31      3    90%   31, 35, 37
+app/models/__init__.py                  10      0   100%
+app/models/aluno.py                     34      0   100%
+app/models/base.py                       3      0   100%
+app/models/inscricao.py                 34      0   100%
+app/models/oficina.py                   37      0   100%
+app/models/pessoa.py                    22      0   100%
+app/models/professor.py                 24      0   100%
+app/models/tema.py                      19      0   100%
+app/models/tutor.py                     32      0   100%
+app/models/user.py                      26      0   100%
+app/routers/__init__.py                  2      0   100%
+app/routers/auth.py                     16      0   100%
+app/routers/oficinas.py                 60      0   100%
+app/routers/professores.py              19      0   100%
+app/routers/temas.py                    27      0   100%
+app/routers/users.py                    42     10    76%   51-52, 61-62, 70-71, 80-81, 89-90
+app/schemas/__init__.py                  7      0   100%
+app/schemas/auth.py                     23      0   100%
+app/schemas/inscricao.py                20      0   100%
+app/schemas/oficina.py                  55      0   100%
+app/schemas/professor.py                16      0   100%
+app/schemas/tema.py                     20      0   100%
+app/schemas/types.py                    22      4    82%   18, 35-37
+app/schemas/user.py                     41      0   100%
+app/services/__init__.py                 2      0   100%
+app/services/auth_service.py            45      6    87%   43, 55-56, 60, 64, 66
+app/services/inscricao_service.py       47      3    94%   20, 27, 38
+app/services/oficina_service.py        138     11    92%   26, 56, 62, 69, 76-78, 145-146, 174, 195
+app/services/professor_service.py       16      1    94%   34
+app/services/tema_service.py            44      2    95%   29, 48
+app/services/user_service.py            55     15    73%   27, 93-114, 118-138
+app/utils/__init__.py                    2      0   100%
+app/utils/security.py                   33      0   100%
+------------------------------------------------------------------
+TOTAL                                 1065     59    94%
+
+======================= 40 passed, 55 warnings in 26.18s =======================
