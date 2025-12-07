@@ -1,6 +1,6 @@
 # Cronograma de Planejamento — ELLP Management System
 
-> Período estimado: 7 semanas · Atualizado em 2025-12-07
+> Período estimado: 3 semanas · Início em 2025-11-15
 
 ## Linha do Tempo Geral
 | Semana | Fase | Objetivos principais |
@@ -13,7 +13,7 @@
 | 7 | Entrega Final | Documentação, vídeo demonstrativo, handoff |
 
 ## Sprint Breakdown
-### Sprint 1 — Fundação (2 semanas)
+### Sprint 1 — Fundação (1 semana)
 - **Meta**: Sistema administrativo funcional (login, oficinas, inscrições).
 - **Backlog chave**: RF-001, RF-002, RF-003, RF-004, RF-005, RF-010, RF-011, RF-012, RF-013, RF-019.
 - **Entregáveis**:
@@ -22,7 +22,7 @@
   - Testes unitários + integração cobrindo auth/officinas.
   - Vídeo de 3 minutos demonstrando fluxo de cadastro.
 
-### Sprint 2 — Fluxo Completo (2 semanas)
+### Sprint 2 — Fluxo Completo (1 semana)
 - **Meta**: Do registro de presença à emissão do certificado.
 - **Backlog chave**: RF-007, RF-031, RF-032, RF-008, RF-033, RF-034, RF-035, RF-009, RF-014, RF-015, RF-022, RF-021.
 - **Entregáveis**:
@@ -31,12 +31,12 @@
   - Dashboard + relatórios.
   - Playwright E2E rodando no CI.
 
-### Semana 6 — Homologação
+### 3 dias — Homologação
 - Correção dos apontamentos do professor
 - Ajustes de performance e acessibilidade.
 - Revisão de LGPD e auditoria.
 
-### Semana 7 — Entrega Final
+### 4 dias — Entrega Final
 - Documentação atualizada (`README`, `docs/*`, OpenAPI).
 - Vídeo final com fluxo completo.
 - Relatório de testes e cobertura.
@@ -60,7 +60,7 @@
 ## Riscos do Cronograma
 | Risco | Impacto | Mitigação |
 |-------|---------|-----------|
-| Atraso na aprovação inicial | Adia todas as fases | Manter professor atualizado semanalmente |
+| Não aprovação inicial | Adia todas as fases | Manter professor atualizado se possível |
 | Falta de tempo para certificados | Compromete Sprint 2 | Iniciar protótipo PDF logo após Sprint 1 |
 | Dependência de Internet/Supabase | Bloqueia testes | Configurar ambiente local alternativo (Docker + Postgres) |
 | Sobrecarga acadêmica | Reduz horas disponíveis | Replanejar tarefas com antecedência e focar no MVP |
