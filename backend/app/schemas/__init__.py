@@ -2,7 +2,8 @@
 from .auth import AuthenticatedUser, LoginRequest, TokenPair, TokenRefreshRequest
 from .user import AlunoCreate, ProfessorCreate, TutorCreate, UserRead
 from .tema import TemaCreate, TemaRead, TemaUpdate
-from .oficina import OficinaCreate, OficinaRead, OficinaUpdate, TutorAssignmentRead
+from .oficina import OficinaCreate, OficinaRead, OficinaUpdate, TutorAssignmentRead, OficinaSummary
+from .professor import ProfessorRead, ProfessorDetailRead
 
 __all__ = [
     "AuthenticatedUser",
@@ -19,5 +20,8 @@ __all__ = [
     "OficinaCreate",
     "OficinaRead",
     "OficinaUpdate",
+    "OficinaSummary",
     "TutorAssignmentRead",
+    "ProfessorRead",
+    "ProfessorDetailRead",
 ]

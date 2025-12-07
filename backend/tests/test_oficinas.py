@@ -266,3 +266,15 @@ def test_tutor_cannot_assign_other_tutor(client, tutor_user, tutor_entity, ofici
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_admin_reassigns_professor(client, admin_user, oficina, second_professor_entity):
+    headers = _auth_headers(client, admin_user.email, "admin12345")
+    response = client.post(
+        f"/oficinas/{oficina.id}/professor/{second_professor_entity.id}",
+        headers=headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    payload = response.json()
+    assert payload["professor_id"] == str(second_professor_entity.id)

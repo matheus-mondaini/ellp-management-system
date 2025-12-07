@@ -164,3 +164,13 @@ def remove_tutor_from_oficina(db: Session, oficina_id: UUID, tutor_id: UUID) -> 
     db.add(oficina)
     db.add(tutor)
     db.commit()
+
+
+def update_oficina_professor(db: Session, oficina_id: UUID, professor_id: UUID) -> Oficina:
+    oficina = get_oficina(db, oficina_id)
+    _get_professor_or_404(db, professor_id)
+    oficina.professor_id = professor_id
+    db.add(oficina)
+    db.commit()
+    db.refresh(oficina)
+    return oficina

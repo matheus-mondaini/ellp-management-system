@@ -103,6 +103,17 @@ def professor_user(db_session: Session) -> User:
 
 
 @pytest.fixture()
+def second_professor_user(db_session: Session) -> User:
+    return _seed_user(
+        db_session,
+        email="prof2@ellp.test",
+        password="prof12345",
+        role="professor",
+        nome="Professor 2",
+    )
+
+
+@pytest.fixture()
 def tutor_user(db_session: Session) -> User:
     return _seed_user(
         db_session,
@@ -135,6 +146,27 @@ def professor_entity(db_session: Session, professor_user: User) -> Professor:
         segundo_email=None,
         coordenador=False,
         area_atuacao="Robotica",
+        observacoes=None,
+    )
+    db_session.add(professor)
+    db_session.commit()
+    db_session.refresh(professor)
+    return professor
+
+
+@pytest.fixture()
+def second_professor_entity(
+    db_session: Session, second_professor_user: User
+) -> Professor:
+    professor = Professor(
+        pessoa=second_professor_user.pessoa,
+        faculdade="UTFPR",
+        departamento="Computacao",
+        titulacao="Mestre",
+        email_institucional="prof2@ellp.test",
+        segundo_email=None,
+        coordenador=False,
+        area_atuacao="IA",
         observacoes=None,
     )
     db_session.add(professor)

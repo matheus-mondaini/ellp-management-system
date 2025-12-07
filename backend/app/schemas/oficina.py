@@ -59,3 +59,14 @@ class TutorAssignmentRead(BaseModel):
     carga_horaria_maxima_semanal: int
     carga_horaria_alocada: float
 
+
+class OficinaSummary(BaseModel):
+    id: UUID
+    titulo: str
+    status: OficinaStatus
+    data_inicio: date
+    data_fim: date
+
+    class Config:
+        from_attributes = True
+

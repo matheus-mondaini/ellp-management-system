@@ -17,6 +17,7 @@ router = APIRouter(prefix="/oficinas", tags=["oficinas"])
 
 AdminOrProfessor = Depends(require_role(["admin", "professor"]))
 TutorOrHigher = Depends(require_role(["admin", "professor", "tutor"]))
+AdminOnly = Depends(require_role(["admin"]))
 
 
 @router.get("", response_model=list[OficinaRead])
@@ -120,3 +121,13 @@ def remove_tutor(
 ) -> Response:
     oficina_service.remove_tutor_from_oficina(db, oficina_id, tutor_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{oficina_id}/professor/{professor_id}", response_model=OficinaRead)
+def set_responsavel_professor(
+    oficina_id: UUID,
+    professor_id: UUID,
+    db: Session = Depends(get_db),
+    _: None = AdminOnly,
+) -> OficinaRead:
+    return oficina_service.update_oficina_professor(db, oficina_id, professor_id)
