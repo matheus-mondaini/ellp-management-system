@@ -1,10 +1,11 @@
 """FastAPI entrypoint."""
 from fastapi import FastAPI
 
-from .routers import auth, users
+from .routers import auth, temas, users
 
 app = FastAPI(title="ELLP Management System API", version="0.2.0")
 app.include_router(auth.router)
+app.include_router(temas.router)
 app.include_router(users.router)
 
 

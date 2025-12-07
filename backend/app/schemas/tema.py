@@ -17,6 +17,12 @@ class TemaCreate(TemaBase):
     pass
 
 
+class TemaUpdate(BaseModel):
+    nome: str | None = None
+    descricao: str | None = None
+    ativo: bool | None = None
+
+
 class TemaRead(TemaBase):
     id: UUID
     created_at: datetime

@@ -102,6 +102,17 @@ def professor_user(db_session: Session) -> User:
 
 
 @pytest.fixture()
+def aluno_user(db_session: Session) -> User:
+    return _seed_user(
+        db_session,
+        email="aluno@ellp.test",
+        password="aluno12345",
+        role="aluno",
+        nome="Aluno",
+    )
+
+
+@pytest.fixture()
 def professor_entity(db_session: Session, professor_user: User) -> Professor:
     professor = Professor(
         pessoa=professor_user.pessoa,
