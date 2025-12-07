@@ -8,12 +8,13 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..middlewares import require_role
+from ..models import UserRole
 from ..schemas import ProfessorDetailRead, ProfessorRead
 from ..services import professor_service
 
 router = APIRouter(prefix="/professores", tags=["professores"])
 
-TutorOrHigher = Depends(require_role(["admin", "professor", "tutor"]))
+TutorOrHigher = Depends(require_role([UserRole.ADMIN, UserRole.PROFESSOR, UserRole.TUTOR]))
 
 
 @router.get("", response_model=list[ProfessorRead])

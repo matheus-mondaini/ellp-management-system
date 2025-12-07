@@ -1,6 +1,6 @@
 """Schema exports."""
 from .auth import AuthenticatedUser, LoginRequest, TokenPair, TokenRefreshRequest
-from .user import AlunoCreate, ProfessorCreate, TutorCreate, UserRead
+from .user import AdminCreate, AlunoCreate, ProfessorCreate, TutorCreate, UserRead
 from .tema import TemaCreate, TemaRead, TemaUpdate
 from .oficina import OficinaCreate, OficinaRead, OficinaUpdate, TutorAssignmentRead, OficinaSummary
 from .professor import ProfessorRead, ProfessorDetailRead
@@ -11,6 +11,7 @@ __all__ = [
     "LoginRequest",
     "TokenPair",
     "TokenRefreshRequest",
+    "AdminCreate",
     "AlunoCreate",
     "ProfessorCreate",
     "TutorCreate",

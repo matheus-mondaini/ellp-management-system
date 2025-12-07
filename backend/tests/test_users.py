@@ -10,6 +10,26 @@ def _auth_headers(client, email, password):
     return {"Authorization": f"Bearer {token}"}
 
 
+def test_admin_manages_admin_profiles(client, admin_user):
+    headers = _auth_headers(client, admin_user.email, "admin12345")
+    payload = {
+        "email": "gestor@ellp.test",
+        "password": "Admin456!",
+        "nome_completo": "Gestor Projeto",
+    }
+
+    create = client.post("/users/admins", headers=headers, json=payload)
+    assert create.status_code == status.HTTP_201_CREATED
+    data = create.json()
+    assert data["role"] == "admin"
+    assert data["email"] == payload["email"]
+
+    listing = client.get("/users/admins", headers=headers)
+    assert listing.status_code == status.HTTP_200_OK
+    emails = [item["email"] for item in listing.json()]
+    assert payload["email"] in emails
+
+
 def test_admin_creates_aluno_success(client, admin_user):
     headers = _auth_headers(client, admin_user.email, "admin12345")
     response = client.post(
@@ -45,3 +65,21 @@ def test_professor_cannot_create_tutor(client, professor_user):
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_tutor_cannot_access_admin_endpoints(client, tutor_user):
+    headers = _auth_headers(client, tutor_user.email, "tutor12345")
+
+    create = client.post(
+        "/users/admins",
+        headers=headers,
+        json={
+            "email": "intruso@ellp.test",
+            "password": "Tutor123!",
+            "nome_completo": "Intruso",
+        },
+    )
+    assert create.status_code == status.HTTP_403_FORBIDDEN
+
+    listing = client.get("/users/admins", headers=headers)
+    assert listing.status_code == status.HTTP_403_FORBIDDEN

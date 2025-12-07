@@ -1,20 +1,34 @@
-"""User entity."""
+"""User entity and RBAC roles."""
 from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from enum import StrEnum
 
-from sqlalchemy import Boolean, DateTime, String, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 
 
+class UserRole(StrEnum):
+    ADMIN = "admin"
+    PROFESSOR = "professor"
+    TUTOR = "tutor"
+    ALUNO = "aluno"
+
+
 class User(Base):
     """Authentication and RBAC data."""
 
     __tablename__ = "users"
+    __table_args__ = (
+        CheckConstraint(
+            "role IN ('admin','professor','tutor','aluno')",
+            name="ck_users_role",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4

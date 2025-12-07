@@ -8,12 +8,13 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..middlewares import require_role
+from ..models import UserRole
 from ..schemas import TemaCreate, TemaRead, TemaUpdate
 from ..services import tema_service
 
 router = APIRouter(prefix="/temas", tags=["temas"])
 
-AdminAndProfessor = Depends(require_role(["admin", "professor"]))
+AdminAndProfessor = Depends(require_role([UserRole.ADMIN, UserRole.PROFESSOR]))
 
 
 @router.get("", response_model=list[TemaRead])

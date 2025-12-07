@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..middlewares import require_role
+from ..models import UserRole
 from ..models.oficina import OficinaStatus
 from ..schemas import (
     InscricaoCreate,
@@ -22,9 +23,9 @@ from ..services import inscricao_service, oficina_service
 
 router = APIRouter(prefix="/oficinas", tags=["oficinas"])
 
-AdminOrProfessor = Depends(require_role(["admin", "professor"]))
-TutorOrHigher = Depends(require_role(["admin", "professor", "tutor"]))
-AdminOnly = Depends(require_role(["admin"]))
+AdminOrProfessor = Depends(require_role([UserRole.ADMIN, UserRole.PROFESSOR]))
+TutorOrHigher = Depends(require_role([UserRole.ADMIN, UserRole.PROFESSOR, UserRole.TUTOR]))
+AdminOnly = Depends(require_role([UserRole.ADMIN]))
 
 
 @router.get("", response_model=list[OficinaRead])

@@ -8,15 +8,16 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import Aluno, Pessoa, Professor, Tutor, User
-from ..schemas import AlunoCreate, ProfessorCreate, TutorCreate, UserRead
+from ..models import Aluno, Pessoa, Professor, Tutor, User, UserRole
+from ..schemas import AdminCreate, AlunoCreate, ProfessorCreate, TutorCreate, UserRead
 from ..utils import get_password_hash
 
 
 ROLE_MAP = {
-    "aluno": "aluno",
-    "tutor": "tutor",
-    "professor": "professor",
+    "admin": UserRole.ADMIN,
+    "aluno": UserRole.ALUNO,
+    "tutor": UserRole.TUTOR,
+    "professor": UserRole.PROFESSOR,
 }
 
 
@@ -27,7 +28,7 @@ def _ensure_email_available(db: Session, email: str) -> None:
 
 
 def _build_user_core(
-    role: str,
+    role: UserRole,
     *,
     email: str,
     password: str,
@@ -35,7 +36,7 @@ def _build_user_core(
     telefone: str | None,
     data_nascimento: date | None,
 ) -> tuple[User, Pessoa]:
-    user = User(email=email, senha_hash=get_password_hash(password), role=role)
+    user = User(email=email, senha_hash=get_password_hash(password), role=role.value)
     pessoa = Pessoa(
         user=user,
         nome_completo=nome_completo,
@@ -66,6 +67,22 @@ def create_aluno(db: Session, payload: AlunoCreate) -> User:
         endereco_uf=payload.endereco_uf,
     )
 
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def create_admin(db: Session, payload: AdminCreate) -> User:
+    _ensure_email_available(db, payload.email)
+    user, _ = _build_user_core(
+        ROLE_MAP["admin"],
+        email=payload.email,
+        password=payload.password,
+        nome_completo=payload.nome_completo,
+        telefone=payload.telefone,
+        data_nascimento=payload.data_nascimento,
+    )
     db.add(user)
     db.commit()
     db.refresh(user)

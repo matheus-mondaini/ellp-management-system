@@ -38,3 +38,20 @@ def test_refresh_token_flow(client, admin_user):
     assert refresh.status_code == status.HTTP_200_OK
     data = refresh.json()
     assert data["access_token"] != login["access_token"]
+
+
+def test_me_returns_authenticated_profile(client, admin_user):
+    login = client.post(
+        "/auth/login",
+        json={"email": admin_user.email, "password": "admin12345"},
+    ).json()
+
+    response = client.get(
+        "/auth/me",
+        headers={"Authorization": f"Bearer {login['access_token']}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    payload = response.json()
+    assert payload["email"] == admin_user.email
+    assert payload["role"] == "admin"

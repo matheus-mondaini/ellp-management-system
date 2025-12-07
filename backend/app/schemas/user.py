@@ -15,6 +15,11 @@ class BaseUserCreate(BaseModel):
     data_nascimento: date | None = None
 
 
+class AdminCreate(BaseUserCreate):
+    """Payload for creating other administrators (RF-001)."""
+    pass
+
+
 class AlunoCreate(BaseUserCreate):
     responsavel_nome: str
     responsavel_telefone: str
