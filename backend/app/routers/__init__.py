@@ -1,4 +1,4 @@
 """Router exports."""
-from . import auth, temas, users
+from . import auth, oficinas, temas, users
 
-__all__ = ["auth", "temas", "users"]
+__all__ = ["auth", "oficinas", "temas", "users"]

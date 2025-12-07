@@ -27,6 +27,19 @@ class OficinaCreate(OficinaBase):
     tema_ids: list[UUID] = Field(default_factory=list)
 
 
+class OficinaUpdate(BaseModel):
+    titulo: str | None = None
+    descricao: str | None = None
+    carga_horaria: int | None = Field(default=None, gt=0)
+    capacidade_maxima: int | None = Field(default=None, gt=0)
+    data_inicio: date | None = None
+    data_fim: date | None = None
+    local: str | None = None
+    status: OficinaStatus | None = None
+    professor_id: UUID | None = None
+    tema_ids: list[UUID] | None = None
+
+
 class OficinaRead(OficinaBase):
     id: UUID
     professor_id: UUID

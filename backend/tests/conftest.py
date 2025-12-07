@@ -13,7 +13,8 @@ from sqlalchemy.pool import StaticPool
 
 from app.main import app
 from app.database import get_db
-from app.models import Base, Pessoa, Professor, Tema, User
+from app.models import Base, Oficina, Pessoa, Professor, Tema, User
+from app.models.oficina import OficinaStatus
 from app.utils import get_password_hash
 
 TEST_DATABASE_URL = "sqlite+pysqlite:///:memory:"
@@ -102,6 +103,17 @@ def professor_user(db_session: Session) -> User:
 
 
 @pytest.fixture()
+def tutor_user(db_session: Session) -> User:
+    return _seed_user(
+        db_session,
+        email="tutor@ellp.test",
+        password="tutor12345",
+        role="tutor",
+        nome="Tutor",
+    )
+
+
+@pytest.fixture()
 def aluno_user(db_session: Session) -> User:
     return _seed_user(
         db_session,
@@ -138,3 +150,23 @@ def tema(db_session: Session) -> Tema:
     db_session.commit()
     db_session.refresh(tema)
     return tema
+
+
+@pytest.fixture()
+def oficina(db_session: Session, professor_entity: Professor, tema: Tema) -> Oficina:
+    oficina = Oficina(
+        professor_id=professor_entity.id,
+        titulo="Robotica Criativa",
+        descricao="Oficina pratica",
+        carga_horaria=10,
+        capacidade_maxima=20,
+        data_inicio=date(2025, 1, 10),
+        data_fim=date(2025, 1, 20),
+        local="UTFPR",
+        status=OficinaStatus.PLANEJADA,
+        temas=[tema],
+    )
+    db_session.add(oficina)
+    db_session.commit()
+    db_session.refresh(oficina)
+    return oficina
