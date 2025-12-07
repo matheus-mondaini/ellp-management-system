@@ -4,8 +4,9 @@ from uuid import uuid4
 
 from fastapi import status
 
-from app.models import Oficina, Tema
+from app.models import Inscricao, Oficina, Tema
 from app.models.oficina import OficinaStatus
+from app.models.inscricao import InscricaoStatus
 
 
 def _auth_headers(client, email, password):
@@ -38,6 +39,9 @@ def test_admin_creates_oficina_with_tema(client, admin_user, professor_entity, t
     assert data["titulo"] == payload["titulo"]
     assert data["professor_id"] == payload["professor_id"]
     assert data["temas"][0]["id"] == str(tema.id)
+    assert data["total_inscritos"] == 0
+    assert data["vagas_disponiveis"] == payload["capacidade_maxima"]
+    assert data["lotada"] is False
 
 
 def test_create_oficina_with_unknown_professor_returns_404(client, admin_user, tema):
@@ -162,6 +166,9 @@ def test_tutor_lists_oficinas_with_filters(client, tutor_user, db_session, profe
     payload = response.json()
     assert len(payload) == 1
     assert payload[0]["titulo"] == "Robotica 101"
+    assert payload[0]["total_inscritos"] == 0
+    assert payload[0]["vagas_disponiveis"] == abertas.capacidade_maxima
+    assert payload[0]["lotada"] is False
 
 
 def test_list_oficinas_period_filter(client, admin_user, db_session, professor_entity, tema):
@@ -278,3 +285,48 @@ def test_admin_reassigns_professor(client, admin_user, oficina, second_professor
     assert response.status_code == status.HTTP_200_OK
     payload = response.json()
     assert payload["professor_id"] == str(second_professor_entity.id)
+
+
+def test_catalogo_exibe_lotacao(client, admin_user, oficina, aluno_entity, second_aluno_entity, db_session):
+    headers = _auth_headers(client, admin_user.email, "admin12345")
+    oficina.capacidade_maxima = 2
+    db_session.add(oficina)
+    db_session.commit()
+
+    def _fetch_catalog_entry():
+        response = client.get("/oficinas", headers=headers)
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert len(data) == 1
+        return data[0]
+
+    initial = _fetch_catalog_entry()
+    assert initial["total_inscritos"] == 0
+    assert initial["vagas_disponiveis"] == 2
+    assert initial["lotada"] is False
+
+    for aluno in (aluno_entity, second_aluno_entity):
+        enroll = client.post(
+            f"/oficinas/{oficina.id}/inscricoes",
+            headers=headers,
+            json={"aluno_id": str(aluno.id)},
+        )
+        assert enroll.status_code == status.HTTP_201_CREATED
+
+    lotada = _fetch_catalog_entry()
+    assert lotada["total_inscritos"] == 2
+    assert lotada["vagas_disponiveis"] == 0
+    assert lotada["lotada"] is True
+
+    inscricao = db_session.query(Inscricao).filter_by(
+        oficina_id=oficina.id,
+        aluno_id=aluno_entity.id,
+    ).first()
+    inscricao.status = InscricaoStatus.CANCELADO
+    db_session.add(inscricao)
+    db_session.commit()
+
+    liberada = _fetch_catalog_entry()
+    assert liberada["total_inscritos"] == 1
+    assert liberada["vagas_disponiveis"] == 1
+    assert liberada["lotada"] is False

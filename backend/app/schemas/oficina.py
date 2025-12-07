@@ -45,6 +45,9 @@ class OficinaRead(OficinaBase):
     id: UUID
     professor_id: UUID
     temas: list[TemaRead] = Field(default_factory=list)
+    total_inscritos: int = 0
+    vagas_disponiveis: int = 0
+    lotada: bool = False
     created_at: datetime
     updated_at: datetime
 

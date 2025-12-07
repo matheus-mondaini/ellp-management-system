@@ -5,12 +5,43 @@ from datetime import date
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from ..models import Oficina, Professor, Tema, Tutor
+from ..models import Inscricao, Oficina, Professor, Tema, Tutor
+from ..models.inscricao import InscricaoStatus
 from ..models.oficina import OficinaStatus
 from ..schemas import OficinaCreate, OficinaUpdate
+
+
+ACTIVE_INSCRICAO_STATUSES = (
+    InscricaoStatus.INSCRITO,
+    InscricaoStatus.EM_ANDAMENTO,
+    InscricaoStatus.CONCLUIDO,
+)
+
+
+def _attach_enrollment_stats(db: Session, oficinas: list[Oficina]) -> None:
+    if not oficinas:
+        return
+
+    oficina_ids = [oficina.id for oficina in oficinas]
+    stmt = (
+        select(Inscricao.oficina_id, func.count(Inscricao.id))
+        .where(
+            Inscricao.oficina_id.in_(oficina_ids),
+            Inscricao.status.in_(ACTIVE_INSCRICAO_STATUSES),
+        )
+        .group_by(Inscricao.oficina_id)
+    )
+    counts = {oficina_id: total for oficina_id, total in db.execute(stmt)}
+
+    for oficina in oficinas:
+        total = counts.get(oficina.id, 0)
+        vagas = max(oficina.capacidade_maxima - total, 0)
+        setattr(oficina, "total_inscritos", total)
+        setattr(oficina, "vagas_disponiveis", vagas)
+        setattr(oficina, "lotada", vagas == 0)
 
 
 def _get_professor_or_404(db: Session, professor_id: UUID) -> Professor:
@@ -65,13 +96,16 @@ def list_oficinas(
         stmt = stmt.where(Oficina.data_fim <= end_date)
     if tema_id:
         stmt = stmt.join(Oficina.temas).where(Tema.id == tema_id).distinct()
-    return db.scalars(stmt).all()
+    oficinas = db.scalars(stmt).all()
+    _attach_enrollment_stats(db, oficinas)
+    return oficinas
 
 
 def get_oficina(db: Session, oficina_id: UUID) -> Oficina:
     oficina = db.get(Oficina, oficina_id)
     if not oficina:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Oficina não encontrada")
+    _attach_enrollment_stats(db, [oficina])
     return oficina
 
 
@@ -94,6 +128,7 @@ def create_oficina(db: Session, payload: OficinaCreate) -> Oficina:
     db.add(oficina)
     db.commit()
     db.refresh(oficina)
+    _attach_enrollment_stats(db, [oficina])
     return oficina
 
 
@@ -116,6 +151,7 @@ def update_oficina(db: Session, oficina_id: UUID, payload: OficinaUpdate) -> Ofi
     db.add(oficina)
     db.commit()
     db.refresh(oficina)
+    _attach_enrollment_stats(db, [oficina])
     return oficina
 
 
@@ -173,4 +209,5 @@ def update_oficina_professor(db: Session, oficina_id: UUID, professor_id: UUID) 
     db.add(oficina)
     db.commit()
     db.refresh(oficina)
+    _attach_enrollment_stats(db, [oficina])
     return oficina
