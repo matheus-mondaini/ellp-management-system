@@ -131,6 +131,22 @@ export default function OficinasPage() {
                   <td className="px-4 py-4 text-sm text-slate-200">
                     {oficina.vagas_disponiveis} vagas livres
                   </td>
+                  <td className="px-4 py-4">
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => window.location.href = `/oficinas/${oficina.id}`}
+                        className="text-xs"
+                      >
+                        Ver
+                      </Button>
+                      <Button
+                        onClick={() => window.location.href = `/oficinas/${oficina.id}/editar`}
+                        className="text-xs"
+                      >
+                        Editar
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

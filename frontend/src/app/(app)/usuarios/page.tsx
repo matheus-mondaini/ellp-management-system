@@ -155,6 +155,22 @@ export default function UsuariosPage() {
                       </span>
                     )}
                   </td>
+                  <td className="px-4 py-4">
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => window.location.href = `/historico?userId=${user.id}`}
+                        className="text-xs"
+                      >
+                        Histórico
+                      </Button>
+                      <Button
+                        onClick={() => window.location.href = `/usuarios/${user.id}/editar`}
+                        className="text-xs"
+                      >
+                        Editar
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

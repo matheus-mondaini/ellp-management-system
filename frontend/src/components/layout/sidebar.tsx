@@ -1,14 +1,17 @@
 "use client";
 
-import { CalendarDays, IdCard, LayoutDashboard, Users2 } from "lucide-react";
+import { CalendarDays, IdCard, LayoutDashboard, Users2, Tags, BarChart3, History } from "lucide-react";
 
 import { NavLink } from "./nav-link";
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/oficinas", label: "Oficinas", icon: CalendarDays },
+  { href: "/temas", label: "Temas", icon: Tags },
   { href: "/certificados", label: "Certificados", icon: IdCard },
   { href: "/usuarios", label: "Usuários", icon: Users2 },
+  { href: "/historico", label: "Histórico", icon: History },
+  { href: "/relatorios/frequencia", label: "Relatórios", icon: BarChart3 },
 ];
 
 export function Sidebar() {
