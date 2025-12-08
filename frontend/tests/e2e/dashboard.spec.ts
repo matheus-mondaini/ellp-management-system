@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { resetMockApi } from './utils';
 
 const ADMIN_EMAIL = 'admin@ellp.test';
 const ADMIN_PASSWORD = 'admin12345';
@@ -12,7 +13,7 @@ async function login(page: Page) {
 }
 
 test.beforeEach(async ({ request }) => {
-  await request.post('/api/mock/__reset');
+  await resetMockApi(request);
 });
 
 test('admin consegue autenticar e visualizar métricas do dashboard', async ({ page }) => {
