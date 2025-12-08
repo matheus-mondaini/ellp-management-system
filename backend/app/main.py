@@ -1,6 +1,8 @@
 """FastAPI entrypoint."""
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from .config import get_settings
 from .routers import (
     auditorias,
     auth,
@@ -20,6 +22,14 @@ from .routers import (
 def create_app() -> FastAPI:
     """Instantiate FastAPI app with every router wired."""
     application = FastAPI(title="ELLP Management System API", version="0.2.0")
+    settings = get_settings()
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(settings.cors_allowed_origins),
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     application.include_router(auth.router)
     application.include_router(certificados.router)
     application.include_router(dashboard.router)
