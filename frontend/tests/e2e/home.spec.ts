@@ -2,6 +2,10 @@ import { test, expect } from '@playwright/test';
 
 const DOC_LINK_SELECTOR = /Ver documento/;
 
+test.beforeEach(async ({ request }) => {
+  await request.post('/api/mock/__reset');
+});
+
 test('home page highlights planning documents', async ({ page }) => {
   await page.goto('/');
 

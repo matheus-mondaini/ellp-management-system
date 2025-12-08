@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const MOCK_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:3000/api/mock';
+
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 60_000,
@@ -24,5 +26,8 @@ export default defineConfig({
     port: 3000,
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
+    env: {
+      NEXT_PUBLIC_API_URL: MOCK_API_URL,
+    },
   },
 });
