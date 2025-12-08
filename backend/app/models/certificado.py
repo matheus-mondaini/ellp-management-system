@@ -24,6 +24,7 @@ class Certificado(Base):
     __tablename__ = "certificados"
     __table_args__ = (
         UniqueConstraint("inscricao_id", name="uq_certificados_inscricao"),
+        UniqueConstraint("tutor_id", "oficina_id", name="uq_certificados_tutor_oficina"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

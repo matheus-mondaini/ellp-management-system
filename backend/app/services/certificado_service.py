@@ -8,8 +8,9 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from ..models import Certificado, CertificadoTipo, Inscricao, Oficina
+from ..models import Certificado, CertificadoTipo, Inscricao, Oficina, Tutor
 from ..models.inscricao import InscricaoStatus
+from ..models.oficina import OficinaStatus
 
 CERTIFICADO_RELATIONS = selectinload(Certificado.inscricao).selectinload(Inscricao.oficina)
 
@@ -31,14 +32,44 @@ def _inscricao_ready(inscricao: Inscricao) -> None:
         )
 
 
-def _ensure_not_exists(db: Session, *, inscricao_id: UUID | None, tutor_id: UUID | None) -> None:
+def _ensure_not_exists(
+    db: Session,
+    *,
+    inscricao_id: UUID | None,
+    tutor_id: UUID | None,
+    oficina_id: UUID | None = None,
+) -> None:
     stmt = select(Certificado.id)
     if inscricao_id:
         stmt = stmt.where(Certificado.inscricao_id == inscricao_id)
     if tutor_id:
         stmt = stmt.where(Certificado.tutor_id == tutor_id)
+    if oficina_id:
+        stmt = stmt.where(Certificado.oficina_id == oficina_id)
     if db.execute(stmt).scalar_one_or_none():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Certificado já emitido")
+
+
+def _get_oficina_or_404(db: Session, oficina_id: UUID) -> Oficina:
+    oficina = db.get(Oficina, oficina_id)
+    if not oficina:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Oficina não encontrada")
+    return oficina
+
+
+def _get_tutor_or_404(db: Session, tutor_id: UUID) -> Tutor:
+    tutor = db.get(Tutor, tutor_id)
+    if not tutor:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tutor não encontrado")
+    return tutor
+
+
+def _ensure_tutor_assigned(oficina: Oficina, tutor: Tutor) -> None:
+    if not any(existing.id == tutor.id for existing in oficina.tutores):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Tutor não vinculado à oficina",
+        )
 
 
 def emitir_para_inscricao(db: Session, inscricao_id: UUID) -> Certificado:
@@ -67,8 +98,47 @@ def emitir_para_inscricao(db: Session, inscricao_id: UUID) -> Certificado:
     return certificado
 
 
+def emitir_para_tutor(db: Session, oficina_id: UUID, tutor_id: UUID) -> Certificado:
+    oficina = _get_oficina_or_404(db, oficina_id)
+    tutor = _get_tutor_or_404(db, tutor_id)
+
+    if oficina.status != OficinaStatus.CONCLUIDA:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Oficina precisa estar concluída",
+        )
+
+    _ensure_tutor_assigned(oficina, tutor)
+    _ensure_not_exists(db, inscricao_id=None, tutor_id=tutor_id, oficina_id=oficina_id)
+
+    certificado = Certificado(
+        tutor_id=tutor.id,
+        oficina_id=oficina.id,
+        tipo=CertificadoTipo.PARTICIPACAO_TUTOR,
+        hash_validacao=_generate_hash(),
+        codigo_verificacao=_generate_code(),
+        arquivo_pdf_url=f"https://storage.ellp.dev/certificados/tutores/{uuid4().hex}.pdf",
+        arquivo_pdf_nome=f"certificado-tutor-{tutor_id}-{oficina_id}.pdf",
+        carga_horaria_certificada=oficina.carga_horaria,
+    )
+    db.add(certificado)
+    db.commit()
+    db.refresh(certificado)
+    return certificado
+
+
 def listar(db: Session) -> list[Certificado]:
     stmt = select(Certificado).options(CERTIFICADO_RELATIONS).order_by(Certificado.created_at.desc())
+    return db.scalars(stmt).all()
+
+
+def listar_por_tutor(db: Session, tutor_id: UUID) -> list[Certificado]:
+    stmt = (
+        select(Certificado)
+        .options(CERTIFICADO_RELATIONS)
+        .where(Certificado.tutor_id == tutor_id)
+        .order_by(Certificado.created_at.desc())
+    )
     return db.scalars(stmt).all()
 
 

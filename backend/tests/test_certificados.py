@@ -1,6 +1,8 @@
-"""API tests for RF-008/RF-033 (Certificados)."""
+"""API tests for RF-008/RF-033/RF-034/RF-035 (Certificados)."""
 
 from fastapi import status
+
+from app.models.oficina import OficinaStatus
 
 
 def _auth_headers(client, email, password):
@@ -36,6 +38,13 @@ def _registrar_presenca_completa(client, headers, oficina_id, inscricao_id, data
         },
     )
     assert response.status_code == status.HTTP_201_CREATED
+
+
+def _preparar_certificado_tutor(db_session, oficina, tutor_entity):
+    oficina.status = OficinaStatus.CONCLUIDA
+    oficina.tutores.append(tutor_entity)
+    db_session.add(oficina)
+    db_session.commit()
 
 
 def test_emite_certificado_para_inscricao_concluida(
@@ -166,5 +175,99 @@ def test_aluno_nao_lista_certificados(
 
     aluno_headers = _auth_headers(client, aluno_user.email, "aluno12345")
     resposta = client.get("/certificados", headers=aluno_headers)
+
+    assert resposta.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_admin_emite_certificado_para_tutor(
+    client,
+    admin_user,
+    tutor_entity,
+    oficina,
+    db_session,
+):
+    _preparar_certificado_tutor(db_session, oficina, tutor_entity)
+
+    admin_headers = _auth_headers(client, admin_user.email, "admin12345")
+    response = client.post(
+        f"/certificados/oficinas/{oficina.id}/tutores/{tutor_entity.id}",
+        headers=admin_headers,
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    payload = response.json()
+    assert payload["tutor_id"] == str(tutor_entity.id)
+    assert payload["tipo"] == "participacao_tutor"
+
+    duplicate = client.post(
+        f"/certificados/oficinas/{oficina.id}/tutores/{tutor_entity.id}",
+        headers=admin_headers,
+    )
+    assert duplicate.status_code == status.HTTP_409_CONFLICT
+
+
+def test_tutor_lista_e_baixa_certificado_proprio(
+    client,
+    admin_user,
+    tutor_user,
+    tutor_entity,
+    oficina,
+    db_session,
+):
+    _preparar_certificado_tutor(db_session, oficina, tutor_entity)
+    admin_headers = _auth_headers(client, admin_user.email, "admin12345")
+    emissao = client.post(
+        f"/certificados/oficinas/{oficina.id}/tutores/{tutor_entity.id}",
+        headers=admin_headers,
+    ).json()
+
+    tutor_headers = _auth_headers(client, tutor_user.email, "tutor12345")
+    lista = client.get("/certificados/tutores/me", headers=tutor_headers)
+    assert lista.status_code == status.HTTP_200_OK
+    itens = lista.json()
+    assert len(itens) == 1
+    assert itens[0]["id"] == emissao["id"]
+
+    download = client.get(
+        f"/certificados/{emissao['id']}/download",
+        headers=tutor_headers,
+    )
+    assert download.status_code == status.HTTP_200_OK
+
+
+def test_tutor_nao_baixa_certificado_de_aluno(
+    client,
+    admin_user,
+    tutor_user,
+    tutor_entity,
+    oficina,
+    aluno_entity,
+):
+    admin_headers = _auth_headers(client, admin_user.email, "admin12345")
+    inscricao_id = _criar_inscricao(client, admin_headers, oficina.id, aluno_entity.id)
+
+    tutor_headers = _auth_headers(client, tutor_user.email, "tutor12345")
+    client.patch(
+        f"/inscricoes/{inscricao_id}/status",
+        headers=tutor_headers,
+        json={"status": "em_andamento"},
+    )
+    _registrar_presenca_completa(
+        client,
+        tutor_headers,
+        oficina.id,
+        inscricao_id,
+        oficina.data_inicio,
+    )
+    emissao = client.post(
+        f"/certificados/inscricoes/{inscricao_id}",
+        headers=tutor_headers,
+    )
+
+    certificado_id = emissao.json()["id"]
+    resposta = client.get(
+        f"/certificados/{certificado_id}/download",
+        headers=tutor_headers,
+    )
 
     assert resposta.status_code == status.HTTP_403_FORBIDDEN
