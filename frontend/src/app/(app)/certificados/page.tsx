@@ -158,7 +158,7 @@ export default function CertificadosPage() {
                         disabled={downloadMutation.isPending}
                       >
                         <Download className="h-4 w-4" />
-                        Baixar PDF
+                        {downloadMutation.isPending ? "Baixando..." : "Baixar PDF"}
                       </Button>
                     </div>
                   </td>
