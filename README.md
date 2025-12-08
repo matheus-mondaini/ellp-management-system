@@ -61,6 +61,28 @@ If you prefer to self-host Supabase locally during development:
 	* `DATABASE_URL=postgresql://postgres:postgres@localhost:54322/postgres`
 5. (Optional) Use `supabase link --project-ref <production_ref>` so `supabase db diff/push` can compare your local schema to the hosted project. See the [Supabase local development guide](https://supabase.com/docs/guides/local-development) for advanced config and OAuth examples.
 
+## Running the full stack locally
+
+1. **Copy env files**: duplicate `.env.example` to `.env` in the repo root and in `backend/`, keeping the provided local Supabase values.
+2. **Database**: from the repo root run `supabase start` (the `supabase/` folder already contains the config). This exposes Postgres on `54322` and the HTTP gateway on `http://127.0.0.1:54321`.
+3. **Backend API**:
+	```bash
+	cd backend
+	python -m venv .venv && source .venv/bin/activate
+	pip install -r requirements.txt
+	uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+	```
+4. **Frontend (Next.js)**:
+	```bash
+	cd frontend
+	npm install
+	npm run dev
+	```
+	The web app will proxy API calls to `http://localhost:8000` (from `.env`).
+5. **Automated tests**:
+	- Backend: `cd backend && pytest`
+	- Frontend E2E: `cd frontend && npx playwright install && npm run test:e2e`
+
 ## Code Owners
 
 * Matheus Mondaini Alegre de Miranda
