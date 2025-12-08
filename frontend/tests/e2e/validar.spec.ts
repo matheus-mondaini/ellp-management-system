@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
+import { resetMockApi } from './utils';
 
 test.beforeEach(async ({ request }) => {
-  await request.post('/api/mock/__reset');
+  await resetMockApi(request);
 });
 
 test('certificate validation page renders mock API data', async ({ page, request }) => {

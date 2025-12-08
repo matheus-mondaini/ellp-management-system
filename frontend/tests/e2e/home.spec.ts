@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { resetMockApi } from './utils';
 
 const DOC_LINK_SELECTOR = /Ver documento/;
 
 test.beforeEach(async ({ request }) => {
-  await request.post('/api/mock/__reset');
+  await resetMockApi(request);
 });
 
 test('home page highlights planning documents', async ({ page }) => {
