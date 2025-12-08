@@ -15,6 +15,7 @@ from .relatorio import (
     RelatorioFrequenciaResumo,
 )
 from .dashboard import DashboardMetricasRead
+from .historico import HistoricoParticipacaoItem, HistoricoParticipacaoRead
 
 __all__ = [
     "AuthenticatedUser",
@@ -51,4 +52,6 @@ __all__ = [
     "RelatorioCertificadosResumo",
     "RelatorioCertificadosRead",
     "DashboardMetricasRead",
+    "HistoricoParticipacaoItem",
+    "HistoricoParticipacaoRead",
 ]

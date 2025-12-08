@@ -5,6 +5,7 @@ from .routers import (
     auth,
     certificados,
     dashboard,
+    historicos,
     inscricoes,
     oficinas,
     presencas,
@@ -18,6 +19,7 @@ app = FastAPI(title="ELLP Management System API", version="0.2.0")
 app.include_router(auth.router)
 app.include_router(certificados.router)
 app.include_router(dashboard.router)
+app.include_router(historicos.router)
 app.include_router(inscricoes.router)
 app.include_router(oficinas.router)
 app.include_router(presencas.router)
