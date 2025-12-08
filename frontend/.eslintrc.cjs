@@ -42,17 +42,18 @@ module.exports = {
     "plugin:import/typescript",
     "plugin:@next/next/core-web-vitals",
   ],
+  overrides: [
+    {
+      files: ["next-env.d.ts"],
+      rules: {
+        "@typescript-eslint/triple-slash-reference": "off",
+      },
+    },
+  ],
   rules: {
     "react/react-in-jsx-scope": "off",
     "react/jsx-uses-react": "off",
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
-    "import/order": [
-      "warn",
-      {
-        groups: [["builtin", "external"], "internal", ["parent", "sibling", "index"], "type"],
-        alphabetize: { order: "asc", caseInsensitive: true },
-        "newlines-between": "always",
-      },
-    ],
+    "import/order": "off",
   },
 };

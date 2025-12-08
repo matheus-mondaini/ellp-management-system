@@ -1,7 +1,5 @@
 import { type ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
-
 export function MetricCard({ label, value, trend, icon }: { label: string; value: ReactNode; trend?: string; icon?: ReactNode }) {
   return (
     <div className="rounded-3xl border border-white/5 bg-white/5 p-5 text-white shadow-lg shadow-black/10">
