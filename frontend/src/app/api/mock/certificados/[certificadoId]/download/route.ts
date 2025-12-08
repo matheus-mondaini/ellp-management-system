@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 
 import { getMockCertificadoById } from "../../../_state";
 
-export function GET(
+export async function GET(
   _request: Request,
-  { params }: { params: { certificadoId: string } },
+  { params }: { params: Promise<{ certificadoId: string }> },
 ) {
-  const certificado = getMockCertificadoById(params.certificadoId);
+  const { certificadoId } = await params;
+  const certificado = getMockCertificadoById(certificadoId);
   if (!certificado) {
     return NextResponse.json({ detail: "Certificado não encontrado" }, { status: 404 });
   }

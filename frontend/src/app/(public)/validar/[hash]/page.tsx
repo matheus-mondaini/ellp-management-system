@@ -29,8 +29,9 @@ function Field({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-export default async function CertificateValidationPage({ params }: { params: { hash: string } }) {
-  const certificado = await getCertificado(params.hash);
+export default async function CertificateValidationPage({ params }: { params: Promise<{ hash: string }> }) {
+  const { hash } = await params;
+  const certificado = await getCertificado(hash);
   const downloadUrl = certificado.arquivo_pdf_url;
 
   return (

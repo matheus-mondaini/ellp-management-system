@@ -24,13 +24,14 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev -- --hostname 127.0.0.1',
+    command: 'NODE_ENV=test npm run dev -- --hostname 127.0.0.1 --port ' + PLAYWRIGHT_PORT,
     port: PLAYWRIGHT_PORT,
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
     env: {
       PORT: String(PLAYWRIGHT_PORT),
       NEXT_PUBLIC_API_URL: MOCK_API_URL,
+      NODE_ENV: 'test',
     },
   },
 });
