@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-const DOCS_BASE = "https://github.com/startse/integration-workshop/tree/main/ellp-management-system/docs";
+const DOCS_BASE = "https://github.com/matheus-mondaini/ellp-management-system/blob/main/docs";
 
 const cards = [
   {
@@ -32,6 +32,23 @@ export default function LandingPage() {
         <p className="text-base text-slate-300">
           Portal administrativo integrado ao backend FastAPI e Supabase para controle das oficinas extensionistas.
         </p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/login"
+            className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
+          >
+            Acessar o portal
+          </Link>
+          <Link
+            href="https://github.com/matheus-mondaini/ellp-management-system/blob/main/README.md"
+            prefetch={false}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-white/20 px-6 py-2 text-sm font-semibold text-white/90 transition hover:border-emerald-400 hover:text-white"
+          >
+            Ver README no GitHub
+          </Link>
+        </div>
       </header>
 
       <motion.div

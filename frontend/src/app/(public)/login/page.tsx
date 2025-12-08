@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,16 +19,23 @@ type FormValues = z.infer<typeof schema>;
 
 function LoginForm() {
   const router = useRouter();
-  const params = useSearchParams();
   const [error, setError] = useState<string | null>(null);
-  const { login, status } = useAuthStore((state) => ({ login: state.login, status: state.status }));
+  const [redirectPath, setRedirectPath] = useState("/dashboard");
+  const login = useAuthStore((state) => state.login);
+  const status = useAuthStore((state) => state.status);
   const form = useForm<FormValues>({ resolver: zodResolver(schema) });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const nextParam = params.get("next");
+    setRedirectPath(nextParam && nextParam.startsWith("/") ? nextParam : "/dashboard");
+  }, []);
 
   const onSubmit = async (values: FormValues) => {
     try {
       setError(null);
       await login(values);
-      router.replace(params.get("next") || "/dashboard");
+      router.replace(redirectPath);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha na autenticação");
     }
@@ -70,9 +77,5 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="text-white">Carregando...</div>}>
-      <LoginForm />
-    </Suspense>
-  );
+  return <LoginForm />;
 }
