@@ -8,6 +8,7 @@ Thumbs.db
 *.swp
 
 # Python
+.venv/
 backend/__pycache__/
 backend/**/*.pyc
 backend/.venv/
