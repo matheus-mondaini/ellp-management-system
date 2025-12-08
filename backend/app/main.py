@@ -1,10 +1,11 @@
 """FastAPI entrypoint."""
 from fastapi import FastAPI
 
-from .routers import auth, oficinas, presencas, professores, temas, users
+from .routers import auth, inscricoes, oficinas, presencas, professores, temas, users
 
 app = FastAPI(title="ELLP Management System API", version="0.2.0")
 app.include_router(auth.router)
+app.include_router(inscricoes.router)
 app.include_router(oficinas.router)
 app.include_router(presencas.router)
 app.include_router(professores.router)

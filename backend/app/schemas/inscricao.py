@@ -24,7 +24,17 @@ class InscricaoRead(BaseModel):
     oficina_id: UUID
     status: InscricaoStatus
     data_inscricao: datetime
+    percentual_presenca: float = 0
+    total_presencas: int = 0
+    total_faltas: int = 0
+    total_aulas_previstas: int = 0
+    apto_certificado: bool = False
+    data_conclusao: datetime | None = None
     observacoes: str | None = None
 
     class Config:
         from_attributes = True
+
+
+class InscricaoStatusUpdate(BaseModel):
+    status: InscricaoStatus

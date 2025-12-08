@@ -4,7 +4,7 @@ from .user import AdminCreate, AlunoCreate, ProfessorCreate, TutorCreate, UserRe
 from .tema import TemaCreate, TemaRead, TemaUpdate
 from .oficina import OficinaCreate, OficinaRead, OficinaUpdate, TutorAssignmentRead, OficinaSummary
 from .professor import ProfessorRead, ProfessorDetailRead
-from .inscricao import InscricaoCreate, InscricaoRead
+from .inscricao import InscricaoCreate, InscricaoRead, InscricaoStatusUpdate
 from .presenca import PresencaBatchCreate, PresencaRead, PresencaRegistro, PresencaUpdate
 
 __all__ = [
@@ -29,6 +29,7 @@ __all__ = [
     "ProfessorDetailRead",
     "InscricaoCreate",
     "InscricaoRead",
+    "InscricaoStatusUpdate",
     "PresencaBatchCreate",
     "PresencaRead",
     "PresencaRegistro",

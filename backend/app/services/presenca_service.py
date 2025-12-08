@@ -1,7 +1,7 @@
 """Regras de negócio para RF-007 (Registro de Presenças)."""
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timezone
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -83,7 +83,18 @@ def _recalculate_inscricao_stats(db: Session, inscricao_id: UUID) -> None:
     inscricao.apto_certificado = bool(
         inscricao.status == InscricaoStatus.CONCLUIDO and percentual >= 75.0
     )
+    _auto_finalize_if_applicable(inscricao, percentual)
     db.add(inscricao)
+
+
+def _auto_finalize_if_applicable(inscricao: Inscricao, percentual: float) -> None:
+    if percentual >= 75.0 and inscricao.status == InscricaoStatus.EM_ANDAMENTO:
+        inscricao.status = InscricaoStatus.CONCLUIDO
+        if not inscricao.data_conclusao:
+            inscricao.data_conclusao = datetime.now(timezone.utc)
+        inscricao.apto_certificado = True
+    elif inscricao.status != InscricaoStatus.CONCLUIDO:
+        inscricao.apto_certificado = False
 
 
 def _fetch_presencas_by_ids(db: Session, presenca_ids: list[UUID]) -> list[Presenca]:
