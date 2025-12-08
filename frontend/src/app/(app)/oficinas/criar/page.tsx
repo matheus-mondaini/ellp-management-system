@@ -105,10 +105,11 @@ export default function CriarOficinaPage() {
                 error={form.formState.errors.capacidade_maxima?.message}
               />
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">
+                <label htmlFor="nova-oficina-professor" className="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">
                   Professor responsável
                 </label>
                 <select
+                  id="nova-oficina-professor"
                   {...form.register("professor_id")}
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900"
                 >

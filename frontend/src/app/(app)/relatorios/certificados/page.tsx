@@ -171,15 +171,15 @@ export default function RelatoriosCertificadosPage() {
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <Button
-                          size="sm"
-                          variant="outline"
+                          
+                          variant="secondary"
                           onClick={() => window.open(`/api/mock/certificados/${cert.id}/download`, "_blank")}
                         >
                           <Download className="h-3 w-3" />
                         </Button>
                         <Button
-                          size="sm"
-                          variant="outline"
+                          
+                          variant="secondary"
                           onClick={() => window.open(`/validar/${cert.hash_validacao}`, "_blank")}
                         >
                           <Award className="h-3 w-3" />

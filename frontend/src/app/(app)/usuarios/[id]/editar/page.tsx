@@ -104,7 +104,7 @@ export default function EditarUsuarioPage() {
     <div className="space-y-8">
       <div>
         <Button
-          variant="outline"
+          variant="secondary"
           onClick={() => router.back()}
           className="mb-4 gap-2"
         >
@@ -162,7 +162,7 @@ export default function EditarUsuarioPage() {
         <div className="flex justify-end gap-2 pt-4">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={() => router.back()}
           >
             Cancelar

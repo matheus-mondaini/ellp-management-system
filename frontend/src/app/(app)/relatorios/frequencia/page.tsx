@@ -73,10 +73,12 @@ export default function RelatoriosFrequenciaPage() {
               }`}
             >
               <h3 className="font-semibold text-white">{oficina.titulo}</h3>
-              <p className="text-sm text-slate-400">{oficina.periodo}</p>
+              <p className="text-sm text-slate-400">
+                {format(new Date(oficina.data_inicio), "dd/MM/yyyy")} - {format(new Date(oficina.data_fim), "dd/MM/yyyy")}
+              </p>
               <div className="mt-2 flex items-center gap-2 text-xs text-slate-400">
                 <Users className="h-3 w-3" />
-                <span>{oficina.vagas_disponiveis}/{oficina.vagas_totais} vagas</span>
+                <span>{oficina.vagas_disponiveis}/{oficina.total_inscritos} inscritos</span>
               </div>
             </button>
           ))}

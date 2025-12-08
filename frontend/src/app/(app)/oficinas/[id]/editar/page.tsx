@@ -94,7 +94,7 @@ export default function EditarOficinaPage() {
       toast({
         title: "Erro",
         description: "Não foi possível atualizar a oficina.",
-        variant: "destructive",
+        variant: "error",
       });
     },
   });
@@ -127,7 +127,7 @@ export default function EditarOficinaPage() {
     <div className="space-y-8">
       <div>
         <Button
-          variant="outline"
+          variant="secondary"
           onClick={() => router.back()}
           className="mb-4 gap-2"
         >
@@ -150,10 +150,11 @@ export default function EditarOficinaPage() {
           error={errors.titulo?.message}
         />
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label htmlFor="oficina-descricao" className="block text-sm font-medium text-slate-300 mb-2">
             Descrição
           </label>
           <textarea
+            id="oficina-descricao"
             {...register("descricao")}
             className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
             rows={4}
@@ -197,10 +198,11 @@ export default function EditarOficinaPage() {
         />
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label htmlFor="oficina-professor" className="block text-sm font-medium text-slate-300 mb-2">
               Professor Responsável
             </label>
             <select
+              id="oficina-professor"
               {...register("professor_id")}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
             >
@@ -216,10 +218,11 @@ export default function EditarOficinaPage() {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label htmlFor="oficina-tema" className="block text-sm font-medium text-slate-300 mb-2">
               Tema
             </label>
             <select
+              id="oficina-tema"
               {...register("tema_id")}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
             >
@@ -238,7 +241,7 @@ export default function EditarOficinaPage() {
         <div className="flex justify-end gap-2 pt-4">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={() => router.back()}
           >
             Cancelar
