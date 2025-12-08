@@ -1,5 +1,15 @@
 """Router exports."""
-from . import auth, certificados, inscricoes, oficinas, presencas, professores, temas, users
+from . import (
+	auth,
+	certificados,
+	inscricoes,
+	oficinas,
+	presencas,
+	professores,
+	relatorios,
+	temas,
+	users,
+)
 
 __all__ = [
 	"auth",
@@ -8,6 +18,7 @@ __all__ = [
 	"oficinas",
 	"presencas",
 	"professores",
+	"relatorios",
 	"temas",
 	"users",
 ]

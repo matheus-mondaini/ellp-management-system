@@ -7,6 +7,13 @@ from .professor import ProfessorRead, ProfessorDetailRead
 from .inscricao import InscricaoCreate, InscricaoRead, InscricaoStatusUpdate
 from .presenca import PresencaBatchCreate, PresencaRead, PresencaRegistro, PresencaUpdate
 from .certificado import CertificadoRead, CertificadoValidacaoRead
+from .relatorio import (
+    RelatorioCertificadosRead,
+    RelatorioCertificadosResumo,
+    RelatorioFrequenciaAluno,
+    RelatorioFrequenciaRead,
+    RelatorioFrequenciaResumo,
+)
 
 __all__ = [
     "AuthenticatedUser",
@@ -37,4 +44,9 @@ __all__ = [
     "PresencaUpdate",
     "CertificadoRead",
     "CertificadoValidacaoRead",
+    "RelatorioFrequenciaResumo",
+    "RelatorioFrequenciaAluno",
+    "RelatorioFrequenciaRead",
+    "RelatorioCertificadosResumo",
+    "RelatorioCertificadosRead",
 ]
