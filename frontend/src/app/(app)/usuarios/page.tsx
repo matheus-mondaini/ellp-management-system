@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Shield, ShieldCheck, Users2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApi } from "@/hooks/use-api";
 import { type UserRole, type UserSummary } from "@/types/api";
@@ -44,11 +45,24 @@ export default function UsuariosPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Governança</p>
-        <h1 className="text-3xl font-semibold text-white">Usuários e perfis</h1>
-        <p className="text-sm text-slate-300">Controle de permissões alinhado ao backend FastAPI.</p>
-      </div>
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Governança</p>
+          <h1 className="text-3xl font-semibold text-white">Usuários e perfis</h1>
+          <p className="text-sm text-slate-300">Controle de permissões alinhado ao backend FastAPI.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={() => window.location.href = "/usuarios/alunos/criar"}>
+            + Aluno
+          </Button>
+          <Button onClick={() => window.location.href = "/usuarios/professores/criar"}>
+            + Professor
+          </Button>
+          <Button onClick={() => window.location.href = "/usuarios/tutores/criar"}>
+            + Tutor
+          </Button>
+        </div>
+      </header>
 
       <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white">
         <div className="flex flex-wrap items-center justify-between gap-4">
