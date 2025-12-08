@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -128,6 +128,78 @@ def download_certificado(
         "hash_validacao": certificado.hash_validacao,
         "codigo_verificacao": certificado.codigo_verificacao,
     }
+
+
+@router.post("/{certificado_id}/regenerar", response_model=CertificadoRead)
+def regenerar_pdf_certificado(
+    certificado_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = AdminOrProfessor,
+) -> CertificadoRead:
+    """Regenera o PDF de um certificado existente."""
+    from ..utils import (
+        formatar_cpf,
+        formatar_periodo,
+        gerar_certificado_aluno,
+        gerar_certificado_tutor,
+        upload_pdf_certificado,
+    )
+    
+    certificado = certificado_service.get_certificado(db, certificado_id)
+    
+    try:
+        if certificado.tipo.value == "conclusao_aluno":
+            inscricao = certificado.inscricao
+            aluno = inscricao.aluno
+            oficina = certificado.oficina
+            
+            pdf_bytes = gerar_certificado_aluno(
+                nome_aluno=aluno.pessoa.nome_completo,
+                cpf_aluno=formatar_cpf(aluno.pessoa.cpf),
+                titulo_oficina=oficina.titulo,
+                carga_horaria=oficina.carga_horaria,
+                periodo=formatar_periodo(str(oficina.data_inicio), str(oficina.data_fim)),
+                percentual_presenca=certificado.percentual_presenca_certificado,
+                hash_validacao=certificado.hash_validacao,
+                codigo_verificacao=certificado.codigo_verificacao,
+            )
+            folder = "certificados"
+        else:
+            tutor = certificado.tutor
+            oficina = certificado.oficina
+            
+            pdf_bytes = gerar_certificado_tutor(
+                nome_tutor=tutor.pessoa.nome_completo,
+                cpf_tutor=formatar_cpf(tutor.pessoa.cpf),
+                titulo_oficina=oficina.titulo,
+                carga_horaria=oficina.carga_horaria,
+                periodo=formatar_periodo(str(oficina.data_inicio), str(oficina.data_fim)),
+                hash_validacao=certificado.hash_validacao,
+                codigo_verificacao=certificado.codigo_verificacao,
+            )
+            folder = "certificados/tutores"
+        
+        pdf_url = upload_pdf_certificado(pdf_bytes, certificado.arquivo_pdf_nome, folder=folder)
+        
+        certificado.arquivo_pdf_url = pdf_url
+        db.commit()
+        db.refresh(certificado)
+        
+        auditoria_service.registrar_evento(
+            db,
+            entidade="certificado",
+            entidade_id=certificado.id,
+            acao="pdf_regenerado",
+            usuario=current_user,
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao regenerar PDF: {str(e)}",
+        )
+    
+    return serialize_certificado(certificado)
 
 
 @router.get(
