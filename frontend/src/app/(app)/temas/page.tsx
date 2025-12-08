@@ -72,7 +72,7 @@ export default function TemasPage() {
 
   const handleEdit = (tema: Tema) => {
     setEditingTema(tema);
-    setFormData({ nome: tema.nome, descricao: tema.descricao });
+    setFormData({ nome: tema.nome, descricao: tema.descricao || "" });
     setFormOpen(true);
   };
 
@@ -117,10 +117,11 @@ export default function TemasPage() {
               onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
             />
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">
+              <label htmlFor="tema-descricao" className="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">
                 Descrição
               </label>
               <textarea
+                id="tema-descricao"
                 value={formData.descricao}
                 onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                 placeholder="Descreva o tema e seu objetivo pedagógico..."

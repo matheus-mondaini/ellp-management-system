@@ -57,7 +57,7 @@ export default function EditarUsuarioPage() {
   });
 
   const mutation = useMutation({
-    mutationFn: (data: EditUsuarioForm) => api(`/users/${userId}`, { method: "PUT", body: data }),
+    mutationFn: (data: EditUsuarioForm) => api(`/users/${userId}`, { method: "PUT", data }),
     onSuccess: () => {
       toast({
         title: "Sucesso!",
@@ -71,7 +71,7 @@ export default function EditarUsuarioPage() {
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o usuário.",
-        variant: "destructive",
+        variant: "error",
       });
     },
   });

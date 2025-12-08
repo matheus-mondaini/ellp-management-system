@@ -114,6 +114,21 @@ export type UserSummary = {
   ativo: boolean;
 };
 
+export type InscricaoStatus = "pendente" | "confirmada" | "em_andamento" | "concluido" | "cancelada" | "desistente";
+
+export type Inscricao = {
+  id: string;
+  aluno_id: string;
+  oficina_id: string;
+  aluno_nome: string;
+  status: InscricaoStatus;
+  data_inscricao: string;
+  presencas: number;
+  total_aulas: number;
+  percentual_presenca: number;
+  apto_certificado: boolean;
+};
+
 export type CreateOficinaPayload = {
   titulo: string;
   descricao?: string | null;
@@ -129,4 +144,41 @@ export type CreateOficinaPayload = {
   status?: OficinaStatus;
   professor_id: string;
   tema_ids?: string[];
+};
+
+export type RelatorioFrequenciaInscricao = {
+  id: string;
+  aluno_nome: string;
+  aluno_email: string;
+  status: string;
+  presencas: number;
+  percentual: number;
+};
+
+export type RelatorioFrequencia = {
+  oficina_titulo: string;
+  oficina_periodo: string;
+  total_inscritos: number;
+  total_sessoes: number;
+  media_presenca: number;
+  certificados_emitidos: number;
+  inscricoes: RelatorioFrequenciaInscricao[];
+};
+
+export type RelatorioCertificado = {
+  id: string;
+  aluno_nome: string;
+  aluno_email: string;
+  oficina_titulo: string;
+  oficina_periodo: string;
+  data_emissao: string;
+  percentual_presenca: number;
+  hash_validacao: string;
+};
+
+export type RelatorioCertificados = {
+  total_certificados: number;
+  total_oficinas: number;
+  media_presenca: number;
+  certificados: RelatorioCertificado[];
 };

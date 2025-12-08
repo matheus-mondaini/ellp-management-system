@@ -2,14 +2,22 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Calendar, Award } from "lucide-react";
+import { Award } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApi } from "@/hooks/use-api";
 import { type UserSummary } from "@/types/api";
+
+interface HistoricoItem {
+  id: string;
+  oficina_titulo: string;
+  oficina_periodo: string;
+  status: string;
+  percentual_presenca: number;
+  certificado_emitido: boolean;
+}
 
 export default function HistoricoPage() {
   const api = useApi();
@@ -23,7 +31,7 @@ export default function HistoricoPage() {
 
   const { data: historico, isLoading, refetch } = useQuery({
     queryKey: ["historico", userId],
-    queryFn: () => api<any[]>(`/users/${userId}/historico`),
+    queryFn: () => api<HistoricoItem[]>(`/users/${userId}/historico`),
     enabled: false,
   });
 
@@ -92,7 +100,7 @@ export default function HistoricoPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-white">Oficinas Participadas</h2>
           <div className="grid gap-4 md:grid-cols-2">
-            {historico.map((item: any) => (
+            {historico.map((item) => (
               <div
                 key={item.id}
                 className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-3"

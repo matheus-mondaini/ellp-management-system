@@ -80,7 +80,7 @@ export default function EditarOficinaPage() {
 
   const mutation = useMutation({
     mutationFn: (data: EditOficinaForm) =>
-      api(`/oficinas/${oficinaId}`, { method: "PUT", body: data }),
+      api(`/oficinas/${oficinaId}`, { method: "PUT", data }),
     onSuccess: () => {
       toast({
         title: "Sucesso!",

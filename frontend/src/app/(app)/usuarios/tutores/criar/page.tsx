@@ -54,9 +54,8 @@ export default function CriarTutorPage() {
       <div>
         <Button
           variant="ghost"
-          size="sm"
           onClick={() => router.back()}
-          className="mb-4 text-slate-300 hover:text-white"
+          className="mb-4 text-slate-300 hover:text-white text-sm"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar

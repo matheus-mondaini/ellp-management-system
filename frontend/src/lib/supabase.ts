@@ -7,5 +7,3 @@ export const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
     autoRefreshToken: false,
   },
 });
-
-export type { Database } from "@/types/supabase";

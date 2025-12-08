@@ -23,5 +23,9 @@ export function useToast() {
     setToasts((previous) => previous.filter((toast) => toast.id !== id));
   }, []);
 
-  return { toasts, addToast, dismiss };
+  const toast = useCallback((toast: Omit<Toast, "id">) => {
+    addToast(toast);
+  }, [addToast]);
+
+  return { toasts, addToast, dismiss, toast };
 }

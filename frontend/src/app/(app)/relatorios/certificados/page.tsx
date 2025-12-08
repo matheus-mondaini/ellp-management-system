@@ -8,9 +8,9 @@ import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApi } from "@/hooks/use-api";
+import { type RelatorioCertificados } from "@/types/api";
 
 export default function RelatoriosCertificadosPage() {
   const api = useApi();
@@ -23,7 +23,7 @@ export default function RelatoriosCertificadosPage() {
       const params = new URLSearchParams();
       if (dataInicio) params.append("data_inicio", dataInicio);
       if (dataFim) params.append("data_fim", dataFim);
-      return api<any>(`/relatorios/certificados?${params.toString()}`);
+      return api<RelatorioCertificados>(`/relatorios/certificados?${params.toString()}`);
     },
   });
 
@@ -31,7 +31,7 @@ export default function RelatoriosCertificadosPage() {
     if (!relatorio) return;
     
     const headers = ["Aluno", "Oficina", "Data Emissão", "Percentual Presença", "Hash"];
-    const rows = relatorio.certificados.map((c: any) => [
+    const rows = relatorio.certificados.map((c) => [
       c.aluno_nome,
       c.oficina_titulo,
       c.data_emissao,

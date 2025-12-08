@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { apiFetch } from "@/lib/api-client";
 import { env } from "@/lib/env";
 import { format } from "date-fns";
-import ptBR from "date-fns/locale/pt-BR";
+import { ptBR } from "date-fns/locale";
 import { CertificadoValidacao } from "@/types/api";
 import { cn } from "@/lib/utils";
 import { CopyClipboardButton } from "@/components/certificados/copy-clipboard-button";

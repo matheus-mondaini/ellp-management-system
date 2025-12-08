@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Download, Calendar, Users } from "lucide-react";
+import { Download, Users } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApi } from "@/hooks/use-api";
+import { type Oficina, type RelatorioFrequencia } from "@/types/api";
 
 export default function RelatoriosFrequenciaPage() {
   const api = useApi();
@@ -17,12 +17,12 @@ export default function RelatoriosFrequenciaPage() {
 
   const { data: oficinas } = useQuery({
     queryKey: ["oficinas"],
-    queryFn: () => api<any[]>("/oficinas"),
+    queryFn: () => api<Oficina[]>("/oficinas"),
   });
 
   const { data: relatorio, isLoading } = useQuery({
     queryKey: ["relatorio-frequencia", selectedOficinaId],
-    queryFn: () => api<any>(`/relatorios/frequencia/${selectedOficinaId}`),
+    queryFn: () => api<RelatorioFrequencia>(`/relatorios/frequencia/${selectedOficinaId}`),
     enabled: !!selectedOficinaId,
   });
 
@@ -30,7 +30,7 @@ export default function RelatoriosFrequenciaPage() {
     if (!relatorio) return;
     
     const headers = ["Nome", "Email", "Status", "Presenças", "Total Sessões", "Percentual"];
-    const rows = relatorio.inscricoes.map((i: any) => [
+    const rows = relatorio.inscricoes.map((i) => [
       i.aluno_nome,
       i.aluno_email,
       i.status,
@@ -142,7 +142,7 @@ export default function RelatoriosFrequenciaPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
-                {relatorio.inscricoes.map((inscricao: any) => (
+                {relatorio.inscricoes.map((inscricao) => (
                   <tr key={inscricao.id} className="hover:bg-white/5 transition">
                     <td className="px-6 py-4">
                       <div>
