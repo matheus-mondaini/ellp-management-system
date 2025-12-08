@@ -10,6 +10,7 @@ from .oficina import Oficina, OficinaStatus
 from .inscricao import Inscricao, InscricaoStatus
 from .certificado import Certificado, CertificadoTipo
 from .presenca import Presenca
+from .auditoria import Auditoria
 
 __all__ = [
     "Base",
@@ -27,4 +28,5 @@ __all__ = [
     "Certificado",
     "CertificadoTipo",
     "Presenca",
+    "Auditoria",
 ]

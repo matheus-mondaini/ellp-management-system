@@ -10,7 +10,7 @@ from ..database import get_db
 from ..middlewares import require_role
 from ..models import User, UserRole
 from ..schemas import InscricaoRead, InscricaoStatusUpdate
-from ..services import inscricao_service
+from ..services import auditoria_service, inscricao_service
 from ._serializers import serialize_inscricao
 
 router = APIRouter(prefix="/inscricoes", tags=["inscricoes"])
@@ -22,8 +22,16 @@ def atualizar_status(
     inscricao_id: UUID,
     payload: InscricaoStatusUpdate,
     db: Session = Depends(get_db),
-    _: User = TutorOrHigher,
+    current_user: User = TutorOrHigher,
 ) -> InscricaoRead:
     inscricao_service.update_status(db, inscricao_id, payload.status)
     atualizado = inscricao_service.get_inscricao(db, inscricao_id)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="inscricao",
+        recurso_id=atualizado.id,
+        acao="status_atualizado",
+        usuario=current_user,
+        payload={"status": payload.status},
+    )
     return serialize_inscricao(atualizado)

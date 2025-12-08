@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 
 from .routers import (
+    auditorias,
     auth,
     certificados,
     dashboard,
@@ -20,6 +21,7 @@ app.include_router(auth.router)
 app.include_router(certificados.router)
 app.include_router(dashboard.router)
 app.include_router(historicos.router)
+app.include_router(auditorias.router)
 app.include_router(inscricoes.router)
 app.include_router(oficinas.router)
 app.include_router(presencas.router)

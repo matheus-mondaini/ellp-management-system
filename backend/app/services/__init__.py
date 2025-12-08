@@ -2,6 +2,7 @@
 from . import (
     auth_service,
     dashboard_service,
+    auditoria_service,
     certificado_service,
     inscricao_service,
     historico_service,
@@ -16,6 +17,7 @@ from . import (
 __all__ = [
     "auth_service",
     "dashboard_service",
+    "auditoria_service",
     "certificado_service",
     "inscricao_service",
     "historico_service",

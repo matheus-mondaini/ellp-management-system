@@ -1,5 +1,6 @@
 """Router exports."""
 from . import (
+	auditorias,
 	auth,
 	certificados,
 	dashboard,
@@ -14,6 +15,7 @@ from . import (
 )
 
 __all__ = [
+	"auditorias",
 	"auth",
 	"certificados",
 	"dashboard",

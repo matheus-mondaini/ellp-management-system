@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..middlewares import require_role
-from ..models import UserRole
+from ..models import User, UserRole
 from ..models.oficina import OficinaStatus
 from ..schemas import (
     InscricaoCreate,
@@ -19,7 +19,7 @@ from ..schemas import (
     OficinaUpdate,
     TutorAssignmentRead,
 )
-from ..services import inscricao_service, oficina_service
+from ..services import auditoria_service, inscricao_service, oficina_service
 from ._serializers import serialize_inscricao
 
 router = APIRouter(prefix="/oficinas", tags=["oficinas"])
@@ -51,9 +51,18 @@ def list_oficinas(
 def create_oficina(
     payload: OficinaCreate,
     db: Session = Depends(get_db),
-    _: None = AdminOrProfessor,
+    current_user: User = AdminOrProfessor,
 ) -> OficinaRead:
-    return oficina_service.create_oficina(db, payload)
+    oficina = oficina_service.create_oficina(db, payload)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="oficina",
+        recurso_id=oficina.id,
+        acao="criada",
+        usuario=current_user,
+        payload=payload.model_dump(),
+    )
+    return oficina
 
 
 @router.get("/{oficina_id}", response_model=OficinaRead)
@@ -70,18 +79,34 @@ def update_oficina(
     oficina_id: UUID,
     payload: OficinaUpdate,
     db: Session = Depends(get_db),
-    _: None = AdminOrProfessor,
+    current_user: User = AdminOrProfessor,
 ) -> OficinaRead:
-    return oficina_service.update_oficina(db, oficina_id, payload)
+    oficina = oficina_service.update_oficina(db, oficina_id, payload)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="oficina",
+        recurso_id=oficina.id,
+        acao="atualizada",
+        usuario=current_user,
+        payload=payload.model_dump(exclude_unset=True),
+    )
+    return oficina
 
 
 @router.delete("/{oficina_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_oficina(
     oficina_id: UUID,
     db: Session = Depends(get_db),
-    _: None = AdminOrProfessor,
+    current_user: User = AdminOrProfessor,
 ) -> Response:
     oficina_service.delete_oficina(db, oficina_id)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="oficina",
+        recurso_id=oficina_id,
+        acao="removida",
+        usuario=current_user,
+    )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -115,9 +140,17 @@ def assign_tutor(
     oficina_id: UUID,
     tutor_id: UUID,
     db: Session = Depends(get_db),
-    _: None = AdminOrProfessor,
+    current_user: User = AdminOrProfessor,
 ) -> TutorAssignmentRead:
     tutor = oficina_service.assign_tutor_to_oficina(db, oficina_id, tutor_id)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="oficina_tutor",
+        recurso_id=oficina_id,
+        acao="associado",
+        usuario=current_user,
+        payload={"tutor_id": str(tutor_id)},
+    )
     return _serialize_tutor_assignment(tutor)
 
 
@@ -126,9 +159,17 @@ def remove_tutor(
     oficina_id: UUID,
     tutor_id: UUID,
     db: Session = Depends(get_db),
-    _: None = AdminOrProfessor,
+    current_user: User = AdminOrProfessor,
 ) -> Response:
     oficina_service.remove_tutor_from_oficina(db, oficina_id, tutor_id)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="oficina_tutor",
+        recurso_id=oficina_id,
+        acao="removido",
+        usuario=current_user,
+        payload={"tutor_id": str(tutor_id)},
+    )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -137,9 +178,18 @@ def set_responsavel_professor(
     oficina_id: UUID,
     professor_id: UUID,
     db: Session = Depends(get_db),
-    _: None = AdminOnly,
+    current_user: User = AdminOnly,
 ) -> OficinaRead:
-    return oficina_service.update_oficina_professor(db, oficina_id, professor_id)
+    oficina = oficina_service.update_oficina_professor(db, oficina_id, professor_id)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="oficina",
+        recurso_id=oficina_id,
+        acao="responsavel_atualizado",
+        usuario=current_user,
+        payload={"professor_id": str(professor_id)},
+    )
+    return oficina
 
 
 @router.get("/{oficina_id}/inscricoes", response_model=list[InscricaoRead])
@@ -161,7 +211,15 @@ def create_oficina_inscricao(
     oficina_id: UUID,
     payload: InscricaoCreate,
     db: Session = Depends(get_db),
-    _: None = TutorOrHigher,
+    current_user: User = TutorOrHigher,
 ) -> InscricaoRead:
     inscricao = inscricao_service.create_inscricao(db, oficina_id, payload)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="inscricao",
+        recurso_id=inscricao.id,
+        acao="criada",
+        usuario=current_user,
+        payload={"oficina_id": str(oficina_id), "aluno_id": str(payload.aluno_id)},
+    )
     return serialize_inscricao(inscricao)

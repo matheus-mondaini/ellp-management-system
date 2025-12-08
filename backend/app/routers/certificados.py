@@ -11,7 +11,7 @@ from ..database import get_db
 from ..middlewares import require_role
 from ..models import Pessoa, Tutor, User, UserRole
 from ..schemas import CertificadoRead, CertificadoValidacaoRead
-from ..services import certificado_service
+from ..services import auditoria_service, certificado_service
 from ._serializers import serialize_certificado, serialize_certificado_validacao
 
 router = APIRouter(prefix="/certificados", tags=["certificados"])
@@ -46,9 +46,17 @@ def listar_certificados(
 def emitir_certificado_inscricao(
     inscricao_id: UUID,
     db: Session = Depends(get_db),
-    _: User = TutorOrHigher,
+    current_user: User = TutorOrHigher,
 ) -> CertificadoRead:
     certificado = certificado_service.emitir_para_inscricao(db, inscricao_id)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="certificado",
+        recurso_id=certificado.id,
+        acao="emitido_aluno",
+        usuario=current_user,
+        payload={"inscricao_id": str(inscricao_id)},
+    )
     return serialize_certificado(certificado)
 
 
@@ -61,9 +69,17 @@ def emitir_certificado_tutor(
     oficina_id: UUID,
     tutor_id: UUID,
     db: Session = Depends(get_db),
-    _: User = AdminOnly,
+    current_user: User = AdminOnly,
 ) -> CertificadoRead:
     certificado = certificado_service.emitir_para_tutor(db, oficina_id, tutor_id)
+    auditoria_service.registrar_evento(
+        db,
+        recurso="certificado",
+        recurso_id=certificado.id,
+        acao="emitido_tutor",
+        usuario=current_user,
+        payload={"oficina_id": str(oficina_id), "tutor_id": str(tutor_id)},
+    )
     return serialize_certificado(certificado)
 
 
