@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const MOCK_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:3000/api/mock';
+const PLAYWRIGHT_PORT = parseInt(process.env.PLAYWRIGHT_PORT ?? '3100', 10);
+const BASE_URL = `http://127.0.0.1:${PLAYWRIGHT_PORT}`;
+const MOCK_API_URL = process.env.NEXT_PUBLIC_API_URL ?? `${BASE_URL}/api/mock`;
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -10,7 +12,7 @@ export default defineConfig({
   },
   retries: process.env.CI ? 2 : 0,
   use: {
-    baseURL: 'http://127.0.0.1:3000',
+    baseURL: BASE_URL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -23,10 +25,11 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run dev -- --hostname 127.0.0.1',
-    port: 3000,
+    port: PLAYWRIGHT_PORT,
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
     env: {
+      PORT: String(PLAYWRIGHT_PORT),
       NEXT_PUBLIC_API_URL: MOCK_API_URL,
     },
   },
