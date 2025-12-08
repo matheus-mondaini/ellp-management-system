@@ -2,6 +2,7 @@
 from . import (
 	auth,
 	certificados,
+	dashboard,
 	inscricoes,
 	oficinas,
 	presencas,
@@ -14,6 +15,7 @@ from . import (
 __all__ = [
 	"auth",
 	"certificados",
+	"dashboard",
 	"inscricoes",
 	"oficinas",
 	"presencas",
