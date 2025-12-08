@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from ..models import Inscricao
-from ..schemas import InscricaoRead
+from ..models import Certificado, Inscricao
+from ..schemas import CertificadoRead, InscricaoRead
 
 
 def _to_float(value: Decimal | float | int | None) -> float:
@@ -39,4 +39,26 @@ def serialize_inscricao(inscricao: Inscricao) -> InscricaoRead:
         apto_certificado=bool(inscricao.apto_certificado),
         data_conclusao=inscricao.data_conclusao,
         observacoes=inscricao.observacoes,
+    )
+
+
+def serialize_certificado(certificado: Certificado) -> CertificadoRead:
+    percentual = certificado.percentual_presenca_certificado
+    if isinstance(percentual, Decimal):
+        percentual = float(percentual)
+
+    return CertificadoRead(
+        id=certificado.id,
+        tipo=certificado.tipo,
+        inscricao_id=certificado.inscricao_id,
+        tutor_id=certificado.tutor_id,
+        oficina_id=certificado.oficina_id,
+        hash_validacao=certificado.hash_validacao,
+        codigo_verificacao=certificado.codigo_verificacao,
+        arquivo_pdf_url=certificado.arquivo_pdf_url,
+        arquivo_pdf_nome=certificado.arquivo_pdf_nome,
+        data_emissao=certificado.data_emissao,
+        carga_horaria_certificada=certificado.carga_horaria_certificada,
+        percentual_presenca_certificado=percentual,
+        revogado=certificado.revogado,
     )

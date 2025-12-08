@@ -8,6 +8,7 @@ from .professor import Professor
 from .tema import Tema
 from .oficina import Oficina, OficinaStatus
 from .inscricao import Inscricao, InscricaoStatus
+from .certificado import Certificado, CertificadoTipo
 from .presenca import Presenca
 
 __all__ = [
@@ -23,5 +24,7 @@ __all__ = [
     "OficinaStatus",
     "Inscricao",
     "InscricaoStatus",
+    "Certificado",
+    "CertificadoTipo",
     "Presenca",
 ]

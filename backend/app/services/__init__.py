@@ -1,6 +1,7 @@
 """Service exports."""
 from . import (
     auth_service,
+    certificado_service,
     inscricao_service,
     oficina_service,
     presenca_service,
@@ -11,6 +12,7 @@ from . import (
 
 __all__ = [
     "auth_service",
+    "certificado_service",
     "inscricao_service",
     "oficina_service",
     "presenca_service",

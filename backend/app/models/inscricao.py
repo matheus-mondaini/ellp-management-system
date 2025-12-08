@@ -69,9 +69,15 @@ class Inscricao(Base):
         back_populates="inscricao",
         cascade="all, delete-orphan",
     )
+    certificado: Mapped["Certificado | None"] = relationship(
+        "Certificado",
+        back_populates="inscricao",
+        uselist=False,
+    )
 
 
 if TYPE_CHECKING:  # pragma: no cover
     from .aluno import Aluno
     from .oficina import Oficina
     from .presenca import Presenca
+    from .certificado import Certificado
