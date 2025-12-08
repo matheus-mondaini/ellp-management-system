@@ -26,3 +26,22 @@ class CertificadoRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CertificadoValidacaoRead(BaseModel):
+    hash_validacao: str
+    codigo_verificacao: str
+    tipo: CertificadoTipo
+    valido: bool
+    participante_nome: str
+    participante_tipo: str
+    oficina_id: UUID
+    oficina_titulo: str
+    data_emissao: datetime
+    carga_horaria_certificada: int | None
+    percentual_presenca_certificado: float | None
+    revogado: bool
+    motivo_revogacao: str | None
+
+    class Config:
+        from_attributes = True

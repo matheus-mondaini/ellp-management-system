@@ -4,7 +4,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 from ..models import Certificado, Inscricao
-from ..schemas import CertificadoRead, InscricaoRead
+from ..schemas import CertificadoRead, CertificadoValidacaoRead, InscricaoRead
 
 
 def _to_float(value: Decimal | float | int | None) -> float:
@@ -43,10 +43,6 @@ def serialize_inscricao(inscricao: Inscricao) -> InscricaoRead:
 
 
 def serialize_certificado(certificado: Certificado) -> CertificadoRead:
-    percentual = certificado.percentual_presenca_certificado
-    if isinstance(percentual, Decimal):
-        percentual = float(percentual)
-
     return CertificadoRead(
         id=certificado.id,
         tipo=certificado.tipo,
@@ -59,6 +55,37 @@ def serialize_certificado(certificado: Certificado) -> CertificadoRead:
         arquivo_pdf_nome=certificado.arquivo_pdf_nome,
         data_emissao=certificado.data_emissao,
         carga_horaria_certificada=certificado.carga_horaria_certificada,
-        percentual_presenca_certificado=percentual,
+        percentual_presenca_certificado=_to_float(certificado.percentual_presenca_certificado),
         revogado=certificado.revogado,
+    )
+
+
+def serialize_certificado_validacao(certificado: Certificado) -> CertificadoValidacaoRead:
+    participante_nome = ""
+    participante_tipo = "desconhecido"
+
+    if certificado.inscricao and certificado.inscricao.aluno:
+        participante_nome = certificado.inscricao.aluno.pessoa.nome_completo
+        participante_tipo = "aluno"
+    elif certificado.tutor and certificado.tutor.pessoa:
+        participante_nome = certificado.tutor.pessoa.nome_completo
+        participante_tipo = "tutor"
+
+    oficina = certificado.oficina or (certificado.inscricao.oficina if certificado.inscricao else None)
+    oficina_titulo = oficina.titulo if oficina else ""
+
+    return CertificadoValidacaoRead(
+        hash_validacao=certificado.hash_validacao,
+        codigo_verificacao=certificado.codigo_verificacao,
+        tipo=certificado.tipo,
+        valido=not certificado.revogado,
+        participante_nome=participante_nome,
+        participante_tipo=participante_tipo,
+        oficina_id=certificado.oficina_id,
+        oficina_titulo=oficina_titulo,
+        data_emissao=certificado.data_emissao,
+        carga_horaria_certificada=certificado.carga_horaria_certificada,
+        percentual_presenca_certificado=_to_float(certificado.percentual_presenca_certificado),
+        revogado=certificado.revogado,
+        motivo_revogacao=certificado.motivo_revogacao,
     )

@@ -8,11 +8,16 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from ..models import Certificado, CertificadoTipo, Inscricao, Oficina, Tutor
+from ..models import Aluno, Certificado, CertificadoTipo, Inscricao, Oficina, Tutor
 from ..models.inscricao import InscricaoStatus
 from ..models.oficina import OficinaStatus
 
-CERTIFICADO_RELATIONS = selectinload(Certificado.inscricao).selectinload(Inscricao.oficina)
+CERTIFICADO_RELATIONS = [
+    selectinload(Certificado.inscricao).selectinload(Inscricao.oficina),
+    selectinload(Certificado.inscricao).selectinload(Inscricao.aluno).selectinload(Aluno.pessoa),
+    selectinload(Certificado.tutor).selectinload(Tutor.pessoa),
+    selectinload(Certificado.oficina),
+]
 
 
 def _generate_hash() -> str:
@@ -128,14 +133,14 @@ def emitir_para_tutor(db: Session, oficina_id: UUID, tutor_id: UUID) -> Certific
 
 
 def listar(db: Session) -> list[Certificado]:
-    stmt = select(Certificado).options(CERTIFICADO_RELATIONS).order_by(Certificado.created_at.desc())
+    stmt = select(Certificado).options(*CERTIFICADO_RELATIONS).order_by(Certificado.created_at.desc())
     return db.scalars(stmt).all()
 
 
 def listar_por_tutor(db: Session, tutor_id: UUID) -> list[Certificado]:
     stmt = (
         select(Certificado)
-        .options(CERTIFICADO_RELATIONS)
+        .options(*CERTIFICADO_RELATIONS)
         .where(Certificado.tutor_id == tutor_id)
         .order_by(Certificado.created_at.desc())
     )
@@ -143,7 +148,19 @@ def listar_por_tutor(db: Session, tutor_id: UUID) -> list[Certificado]:
 
 
 def get_certificado(db: Session, certificado_id: UUID) -> Certificado:
-    stmt = select(Certificado).options(CERTIFICADO_RELATIONS).where(Certificado.id == certificado_id)
+    stmt = select(Certificado).options(*CERTIFICADO_RELATIONS).where(Certificado.id == certificado_id)
+    certificado = db.scalars(stmt).first()
+    if not certificado:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Certificado não encontrado")
+    return certificado
+
+
+def get_por_hash(db: Session, hash_validacao: str) -> Certificado:
+    stmt = (
+        select(Certificado)
+        .options(*CERTIFICADO_RELATIONS)
+        .where(Certificado.hash_validacao == hash_validacao)
+    )
     certificado = db.scalars(stmt).first()
     if not certificado:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Certificado não encontrado")

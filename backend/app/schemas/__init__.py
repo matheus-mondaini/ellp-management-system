@@ -6,7 +6,7 @@ from .oficina import OficinaCreate, OficinaRead, OficinaUpdate, TutorAssignmentR
 from .professor import ProfessorRead, ProfessorDetailRead
 from .inscricao import InscricaoCreate, InscricaoRead, InscricaoStatusUpdate
 from .presenca import PresencaBatchCreate, PresencaRead, PresencaRegistro, PresencaUpdate
-from .certificado import CertificadoRead
+from .certificado import CertificadoRead, CertificadoValidacaoRead
 
 __all__ = [
     "AuthenticatedUser",
@@ -36,4 +36,5 @@ __all__ = [
     "PresencaRegistro",
     "PresencaUpdate",
     "CertificadoRead",
+    "CertificadoValidacaoRead",
 ]

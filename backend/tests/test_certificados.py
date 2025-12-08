@@ -271,3 +271,46 @@ def test_tutor_nao_baixa_certificado_de_aluno(
     )
 
     assert resposta.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_validacao_publica_retorna_dados(
+    client,
+    admin_user,
+    tutor_user,
+    oficina,
+    aluno_entity,
+):
+    admin_headers = _auth_headers(client, admin_user.email, "admin12345")
+    inscricao_id = _criar_inscricao(client, admin_headers, oficina.id, aluno_entity.id)
+
+    tutor_headers = _auth_headers(client, tutor_user.email, "tutor12345")
+    client.patch(
+        f"/inscricoes/{inscricao_id}/status",
+        headers=tutor_headers,
+        json={"status": "em_andamento"},
+    )
+    _registrar_presenca_completa(
+        client,
+        tutor_headers,
+        oficina.id,
+        inscricao_id,
+        oficina.data_inicio,
+    )
+    emissao = client.post(
+        f"/certificados/inscricoes/{inscricao_id}",
+        headers=tutor_headers,
+    )
+
+    hash_validacao = emissao.json()["hash_validacao"]
+    resposta = client.get(f"/certificados/validar/{hash_validacao}")
+
+    assert resposta.status_code == status.HTTP_200_OK
+    body = resposta.json()
+    assert body["hash_validacao"] == hash_validacao
+    assert body["participante_nome"] == aluno_entity.pessoa.nome_completo
+    assert body["valido"] is True
+
+
+def test_validacao_publica_hash_invalido(client):
+    resposta = client.get("/certificados/validar/hash-invalido")
+    assert resposta.status_code == status.HTTP_404_NOT_FOUND

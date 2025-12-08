@@ -10,9 +10,9 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..middlewares import require_role
 from ..models import Pessoa, Tutor, User, UserRole
-from ..schemas import CertificadoRead
+from ..schemas import CertificadoRead, CertificadoValidacaoRead
 from ..services import certificado_service
-from ._serializers import serialize_certificado
+from ._serializers import serialize_certificado, serialize_certificado_validacao
 
 router = APIRouter(prefix="/certificados", tags=["certificados"])
 TutorOrHigher = Depends(require_role([UserRole.ADMIN, UserRole.PROFESSOR, UserRole.TUTOR]))
@@ -112,3 +112,13 @@ def download_certificado(
         "hash_validacao": certificado.hash_validacao,
         "codigo_verificacao": certificado.codigo_verificacao,
     }
+
+
+@router.get(
+    "/validar/{hash_certificado}",
+    response_model=CertificadoValidacaoRead,
+    include_in_schema=True,
+)
+def validar_certificado(hash_certificado: str, db: Session = Depends(get_db)) -> CertificadoValidacaoRead:
+    certificado = certificado_service.get_por_hash(db, hash_certificado)
+    return serialize_certificado_validacao(certificado)
