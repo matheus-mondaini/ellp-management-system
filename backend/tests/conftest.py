@@ -13,8 +13,9 @@ from sqlalchemy.pool import StaticPool
 
 from app.main import app
 from app.database import get_db
-from app.models import Aluno, Base, Oficina, Pessoa, Professor, Tema, Tutor, User
+from app.models import Aluno, Base, Inscricao, Oficina, Pessoa, Professor, Tema, Tutor, User
 from app.models.oficina import OficinaStatus
+from app.models.inscricao import InscricaoStatus
 from app.utils import get_password_hash
 
 TEST_DATABASE_URL = "sqlite+pysqlite:///:memory:"
@@ -254,3 +255,16 @@ def oficina(db_session: Session, professor_entity: Professor, tema: Tema) -> Ofi
     db_session.commit()
     db_session.refresh(oficina)
     return oficina
+
+
+@pytest.fixture()
+def inscricao(db_session: Session, oficina: Oficina, aluno_entity: Aluno) -> Inscricao:
+    registro = Inscricao(
+        aluno_id=aluno_entity.id,
+        oficina_id=oficina.id,
+        status=InscricaoStatus.INSCRITO,
+    )
+    db_session.add(registro)
+    db_session.commit()
+    db_session.refresh(registro)
+    return registro

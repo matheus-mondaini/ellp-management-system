@@ -64,8 +64,14 @@ class Inscricao(Base):
 
     aluno: Mapped["Aluno"] = relationship("Aluno", back_populates="inscricoes")
     oficina: Mapped["Oficina"] = relationship("Oficina", back_populates="inscricoes")
+    presencas: Mapped[list["Presenca"]] = relationship(
+        "Presenca",
+        back_populates="inscricao",
+        cascade="all, delete-orphan",
+    )
 
 
 if TYPE_CHECKING:  # pragma: no cover
     from .aluno import Aluno
     from .oficina import Oficina
+    from .presenca import Presenca
