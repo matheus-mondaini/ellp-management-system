@@ -14,6 +14,7 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
     Integer,
+    Numeric,
     String,
     Table,
     Text,
@@ -42,6 +43,7 @@ oficina_tutor_table = Table(
         ForeignKey("tutores.id", ondelete="CASCADE"),
         primary_key=True,
     ),
+    Column("carga_horaria_oficina", Numeric(5, 2), nullable=True),
     UniqueConstraint("oficina_id", "tutor_id", name="uq_oficina_tutor_unique"),
 )
 
@@ -71,17 +73,23 @@ class Oficina(Base):
     )
     titulo: Mapped[str] = mapped_column(String(255), nullable=False)
     descricao: Mapped[str | None] = mapped_column(Text())
+    objetivo: Mapped[str | None] = mapped_column(Text())
     carga_horaria: Mapped[int] = mapped_column(Integer, nullable=False)
     capacidade_maxima: Mapped[int] = mapped_column(Integer, nullable=False)
+    numero_aulas: Mapped[int | None] = mapped_column(Integer)
     data_inicio: Mapped[date] = mapped_column(Date(), nullable=False)
     data_fim: Mapped[date] = mapped_column(Date(), nullable=False)
     local: Mapped[str] = mapped_column(String(255), nullable=False)
+    dias_semana: Mapped[str | None] = mapped_column(String(100))
+    horario: Mapped[str | None] = mapped_column(String(50))
     status: Mapped[OficinaStatus] = mapped_column(
         Enum(OficinaStatus, native_enum=False),
         default=OficinaStatus.PLANEJADA,
         nullable=False,
     )
     observacoes: Mapped[str | None] = mapped_column(Text())
+    total_inscritos: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    total_concluintes: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

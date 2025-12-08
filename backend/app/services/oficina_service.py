@@ -5,7 +5,7 @@ from datetime import date
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
 from ..models import Inscricao, Oficina, Professor, Tema, Tutor
@@ -26,20 +26,28 @@ def _attach_enrollment_stats(db: Session, oficinas: list[Oficina]) -> None:
         return
 
     oficina_ids = [oficina.id for oficina in oficinas]
+    active_case = case(
+        (Inscricao.status.in_(ACTIVE_INSCRICAO_STATUSES), 1),
+        else_=0,
+    )
+    concluded_case = case((Inscricao.status == InscricaoStatus.CONCLUIDO, 1), else_=0)
     stmt = (
-        select(Inscricao.oficina_id, func.count(Inscricao.id))
-        .where(
-            Inscricao.oficina_id.in_(oficina_ids),
-            Inscricao.status.in_(ACTIVE_INSCRICAO_STATUSES),
-        )
+        select(Inscricao.oficina_id, func.sum(active_case), func.sum(concluded_case))
+        .where(Inscricao.oficina_id.in_(oficina_ids))
         .group_by(Inscricao.oficina_id)
     )
-    counts = {oficina_id: total for oficina_id, total in db.execute(stmt)}
+    counts: dict[UUID, tuple[int, int]] = {}
+    for oficina_id, total_ativos, total_concluidos in db.execute(stmt):
+        ativos = int(total_ativos or 0)
+        concluidos = int(total_concluidos or 0)
+        counts[oficina_id] = (ativos, concluidos)
 
     for oficina in oficinas:
-        total = counts.get(oficina.id, 0)
+        ativos, concluidos = counts.get(oficina.id, (0, 0))
+        total = ativos
         vagas = max(oficina.capacidade_maxima - total, 0)
-        setattr(oficina, "total_inscritos", total)
+        oficina.total_inscritos = total
+        oficina.total_concluintes = concluidos
         setattr(oficina, "vagas_disponiveis", vagas)
         setattr(oficina, "lotada", vagas == 0)
 
@@ -110,21 +118,12 @@ def get_oficina(db: Session, oficina_id: UUID) -> Oficina:
 
 
 def create_oficina(db: Session, payload: OficinaCreate) -> Oficina:
-    _get_professor_or_404(db, payload.professor_id)
-    temas = _resolve_temas(db, payload.tema_ids)
+    data = payload.model_dump()
+    tema_ids = data.pop("tema_ids", [])
+    _get_professor_or_404(db, data["professor_id"])
+    temas = _resolve_temas(db, tema_ids)
 
-    oficina = Oficina(
-        professor_id=payload.professor_id,
-        titulo=payload.titulo,
-        descricao=payload.descricao,
-        carga_horaria=payload.carga_horaria,
-        capacidade_maxima=payload.capacidade_maxima,
-        data_inicio=payload.data_inicio,
-        data_fim=payload.data_fim,
-        local=payload.local,
-        status=payload.status,
-        temas=temas,
-    )
+    oficina = Oficina(**data, temas=temas)
     db.add(oficina)
     db.commit()
     db.refresh(oficina)

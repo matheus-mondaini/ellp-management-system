@@ -15,27 +15,29 @@ AdminOnly = Depends(require_role([UserRole.ADMIN]))
 
 
 def _serialize(evento: Auditoria) -> AuditoriaRead:
-    usuario_email = evento.usuario.email if evento.usuario else None
     return AuditoriaRead(
         id=evento.id,
-        recurso=evento.recurso,
-        recurso_id=evento.recurso_id,
+        entidade=evento.entidade,
+        entidade_id=evento.entidade_id,
         acao=evento.acao,
         descricao=evento.descricao,
-        payload=evento.payload,
-        usuario_id=evento.usuario_id,
-        usuario_email=usuario_email,
-        criado_em=evento.criado_em,
+        detalhes=evento.detalhes,
+        user_id=evento.user_id,
+        user_email=evento.user_email,
+        user_role=evento.user_role,
+        ip_address=evento.ip_address,
+        user_agent=evento.user_agent,
+        created_at=evento.created_at,
     )
 
 
 @router.get("", response_model=list[AuditoriaRead])
 def listar_auditorias(
-    recurso: str | None = Query(None, description="Filtra por recurso"),
+    entidade: str | None = Query(None, description="Filtra por entidade"),
     acao: str | None = Query(None, description="Filtra por ação"),
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
     _: User = AdminOnly,
 ) -> list[AuditoriaRead]:
-    eventos = auditoria_service.listar_eventos(db, recurso=recurso, acao=acao, limit=limit)
+    eventos = auditoria_service.listar_eventos(db, entidade=entidade, acao=acao, limit=limit)
     return [_serialize(evento) for evento in eventos]

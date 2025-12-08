@@ -9,14 +9,17 @@ from pydantic import BaseModel
 
 class AuditoriaRead(BaseModel):
     id: UUID
-    recurso: str
-    recurso_id: UUID | None
+    entidade: str
+    entidade_id: UUID | None
     acao: str
     descricao: str | None = None
-    payload: dict | None = None
-    usuario_id: UUID | None = None
-    usuario_email: str | None = None
-    criado_em: datetime
+    detalhes: dict | None = None
+    user_id: UUID | None = None
+    user_email: str | None = None
+    user_role: str | None = None
+    ip_address: str | None = None
+    user_agent: str | None = None
+    created_at: datetime
 
     class Config:
         from_attributes = True

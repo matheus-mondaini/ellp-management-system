@@ -340,6 +340,7 @@ CREATE TABLE auditoria (
     acao VARCHAR(255) NOT NULL,  -- Ex: "CREATE", "UPDATE", "DELETE"
     entidade VARCHAR(100) NOT NULL,  -- Ex: "oficinas", "inscricoes", "certificados"
     entidade_id UUID,
+    descricao TEXT,  -- Mensagem amigável opcional
     
     -- Detalhes (JSON)
     detalhes JSONB,

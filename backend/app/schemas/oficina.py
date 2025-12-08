@@ -15,11 +15,15 @@ from .tema import TemaRead
 class OficinaBase(BaseModel):
     titulo: str
     descricao: str | None = None
+    objetivo: str | None = None
     carga_horaria: int = Field(gt=0)
     capacidade_maxima: int = Field(gt=0)
+    numero_aulas: int | None = Field(default=None, gt=0)
     data_inicio: date
     data_fim: date
     local: str
+    dias_semana: str | None = None
+    horario: str | None = None
     status: OficinaStatus = OficinaStatus.PLANEJADA
 
 
@@ -31,11 +35,15 @@ class OficinaCreate(OficinaBase):
 class OficinaUpdate(BaseModel):
     titulo: str | None = None
     descricao: str | None = None
+    objetivo: str | None = None
     carga_horaria: int | None = Field(default=None, gt=0)
     capacidade_maxima: int | None = Field(default=None, gt=0)
+    numero_aulas: int | None = Field(default=None, gt=0)
     data_inicio: date | None = None
     data_fim: date | None = None
     local: str | None = None
+    dias_semana: str | None = None
+    horario: str | None = None
     status: OficinaStatus | None = None
     professor_id: UUID | None = None
     tema_ids: list[UUID] | None = None
@@ -47,6 +55,7 @@ class OficinaRead(OficinaBase):
     temas: list[TemaRead] = Field(default_factory=list)
     total_inscritos: int = 0
     vagas_disponiveis: int = 0
+    total_concluintes: int = 0
     lotada: bool = False
     created_at: datetime
     updated_at: datetime

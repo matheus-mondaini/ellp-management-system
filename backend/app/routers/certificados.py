@@ -51,11 +51,11 @@ def emitir_certificado_inscricao(
     certificado = certificado_service.emitir_para_inscricao(db, inscricao_id)
     auditoria_service.registrar_evento(
         db,
-        recurso="certificado",
-        recurso_id=certificado.id,
+        entidade="certificado",
+        entidade_id=certificado.id,
         acao="emitido_aluno",
         usuario=current_user,
-        payload={"inscricao_id": str(inscricao_id)},
+        detalhes={"inscricao_id": str(inscricao_id)},
     )
     return serialize_certificado(certificado)
 
@@ -74,11 +74,11 @@ def emitir_certificado_tutor(
     certificado = certificado_service.emitir_para_tutor(db, oficina_id, tutor_id)
     auditoria_service.registrar_evento(
         db,
-        recurso="certificado",
-        recurso_id=certificado.id,
+        entidade="certificado",
+        entidade_id=certificado.id,
         acao="emitido_tutor",
         usuario=current_user,
-        payload={"oficina_id": str(oficina_id), "tutor_id": str(tutor_id)},
+        detalhes={"oficina_id": str(oficina_id), "tutor_id": str(tutor_id)},
     )
     return serialize_certificado(certificado)
 

@@ -28,10 +28,10 @@ def atualizar_status(
     atualizado = inscricao_service.get_inscricao(db, inscricao_id)
     auditoria_service.registrar_evento(
         db,
-        recurso="inscricao",
-        recurso_id=atualizado.id,
+        entidade="inscricao",
+        entidade_id=atualizado.id,
         acao="status_atualizado",
         usuario=current_user,
-        payload={"status": payload.status},
+        detalhes={"status": payload.status},
     )
     return serialize_inscricao(atualizado)

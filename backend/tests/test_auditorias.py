@@ -41,9 +41,9 @@ def test_auditoria_registra_criacao_de_oficina(client, admin_user, professor_ent
     itens = audit_response.json()
     assert len(itens) >= 1
     evento = itens[0]
-    assert evento["recurso"] == "oficina"
+    assert evento["entidade"] == "oficina"
     assert evento["acao"] == "criada"
-    assert evento["usuario_email"] == admin_user.email
+    assert evento["user_email"] == admin_user.email
 
 
 def test_listagem_de_auditoria_restrita_a_admin(client, tutor_user):

@@ -14,20 +14,26 @@ from ..models import Auditoria, User
 def registrar_evento(
     db: Session,
     *,
-    recurso: str,
-    recurso_id: UUID | None,
+    entidade: str,
     acao: str,
     usuario: User | None,
+    entidade_id: UUID | None = None,
     descricao: str | None = None,
-    payload: Any = None,
+    detalhes: Any = None,
+    ip_address: str | None = None,
+    user_agent: str | None = None,
 ) -> Auditoria:
     evento = Auditoria(
-        recurso=recurso,
-        recurso_id=recurso_id,
+        entidade=entidade,
+        entidade_id=entidade_id,
         acao=acao,
-        usuario_id=usuario.id if usuario else None,
         descricao=descricao,
-        payload=jsonable_encoder(payload) if payload is not None else None,
+        detalhes=jsonable_encoder(detalhes) if detalhes is not None else None,
+        user_id=usuario.id if usuario else None,
+        user_email=usuario.email if usuario else None,
+        user_role=usuario.role if usuario else None,
+        ip_address=ip_address,
+        user_agent=user_agent,
     )
     db.add(evento)
     db.commit()
@@ -38,13 +44,13 @@ def registrar_evento(
 def listar_eventos(
     db: Session,
     *,
-    recurso: str | None = None,
+    entidade: str | None = None,
     acao: str | None = None,
     limit: int = 50,
 ) -> list[Auditoria]:
-    stmt = select(Auditoria).order_by(desc(Auditoria.criado_em)).limit(limit)
-    if recurso:
-        stmt = stmt.where(Auditoria.recurso == recurso)
+    stmt = select(Auditoria).order_by(desc(Auditoria.created_at)).limit(limit)
+    if entidade:
+        stmt = stmt.where(Auditoria.entidade == entidade)
     if acao:
         stmt = stmt.where(Auditoria.acao == acao)
     return db.scalars(stmt).all()

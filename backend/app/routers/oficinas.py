@@ -56,11 +56,11 @@ def create_oficina(
     oficina = oficina_service.create_oficina(db, payload)
     auditoria_service.registrar_evento(
         db,
-        recurso="oficina",
-        recurso_id=oficina.id,
+        entidade="oficina",
+        entidade_id=oficina.id,
         acao="criada",
         usuario=current_user,
-        payload=payload.model_dump(),
+        detalhes=payload.model_dump(),
     )
     return oficina
 
@@ -84,11 +84,11 @@ def update_oficina(
     oficina = oficina_service.update_oficina(db, oficina_id, payload)
     auditoria_service.registrar_evento(
         db,
-        recurso="oficina",
-        recurso_id=oficina.id,
+        entidade="oficina",
+        entidade_id=oficina.id,
         acao="atualizada",
         usuario=current_user,
-        payload=payload.model_dump(exclude_unset=True),
+        detalhes=payload.model_dump(exclude_unset=True),
     )
     return oficina
 
@@ -102,8 +102,8 @@ def delete_oficina(
     oficina_service.delete_oficina(db, oficina_id)
     auditoria_service.registrar_evento(
         db,
-        recurso="oficina",
-        recurso_id=oficina_id,
+        entidade="oficina",
+        entidade_id=oficina_id,
         acao="removida",
         usuario=current_user,
     )
@@ -145,11 +145,11 @@ def assign_tutor(
     tutor = oficina_service.assign_tutor_to_oficina(db, oficina_id, tutor_id)
     auditoria_service.registrar_evento(
         db,
-        recurso="oficina_tutor",
-        recurso_id=oficina_id,
+        entidade="oficina_tutor",
+        entidade_id=oficina_id,
         acao="associado",
         usuario=current_user,
-        payload={"tutor_id": str(tutor_id)},
+        detalhes={"tutor_id": str(tutor_id)},
     )
     return _serialize_tutor_assignment(tutor)
 
@@ -164,11 +164,11 @@ def remove_tutor(
     oficina_service.remove_tutor_from_oficina(db, oficina_id, tutor_id)
     auditoria_service.registrar_evento(
         db,
-        recurso="oficina_tutor",
-        recurso_id=oficina_id,
+        entidade="oficina_tutor",
+        entidade_id=oficina_id,
         acao="removido",
         usuario=current_user,
-        payload={"tutor_id": str(tutor_id)},
+        detalhes={"tutor_id": str(tutor_id)},
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -183,11 +183,11 @@ def set_responsavel_professor(
     oficina = oficina_service.update_oficina_professor(db, oficina_id, professor_id)
     auditoria_service.registrar_evento(
         db,
-        recurso="oficina",
-        recurso_id=oficina_id,
+        entidade="oficina",
+        entidade_id=oficina_id,
         acao="responsavel_atualizado",
         usuario=current_user,
-        payload={"professor_id": str(professor_id)},
+        detalhes={"professor_id": str(professor_id)},
     )
     return oficina
 
@@ -216,10 +216,10 @@ def create_oficina_inscricao(
     inscricao = inscricao_service.create_inscricao(db, oficina_id, payload)
     auditoria_service.registrar_evento(
         db,
-        recurso="inscricao",
-        recurso_id=inscricao.id,
+        entidade="inscricao",
+        entidade_id=inscricao.id,
         acao="criada",
         usuario=current_user,
-        payload={"oficina_id": str(oficina_id), "aluno_id": str(payload.aluno_id)},
+        detalhes={"oficina_id": str(oficina_id), "aluno_id": str(payload.aluno_id)},
     )
     return serialize_inscricao(inscricao)

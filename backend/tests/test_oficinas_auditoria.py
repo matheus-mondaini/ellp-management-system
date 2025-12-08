@@ -40,9 +40,9 @@ def test_create_oficina_emits_audit_event(monkeypatch, client, admin_user, profe
     assert response.status_code == status.HTTP_201_CREATED
     assert audit_calls, "Evento de auditoria não registrado"
     evento = audit_calls[-1]
-    assert evento["recurso"] == "oficina"
+    assert evento["entidade"] == "oficina"
     assert evento["acao"] == "criada"
-    assert evento["payload"]["titulo"] == payload["titulo"]
+    assert evento["detalhes"]["titulo"] == payload["titulo"]
 
 
 def test_assign_tutor_emits_audit_event(monkeypatch, client, admin_user, tutor_entity, oficina):
@@ -66,9 +66,9 @@ def test_assign_tutor_emits_audit_event(monkeypatch, client, admin_user, tutor_e
     assert response.status_code == status.HTTP_201_CREATED
     assert audit_calls, "Evento de auditoria não registrado"
     evento = audit_calls[-1]
-    assert evento["recurso"] == "oficina_tutor"
+    assert evento["entidade"] == "oficina_tutor"
     assert evento["acao"] == "associado"
-    assert evento["payload"] == {"tutor_id": str(tutor_entity.id)}
+    assert evento["detalhes"] == {"tutor_id": str(tutor_entity.id)}
 
 
 def test_create_inscricao_emits_audit_event(
@@ -100,6 +100,6 @@ def test_create_inscricao_emits_audit_event(
     assert response.status_code == status.HTTP_201_CREATED
     assert audit_calls, "Evento de auditoria não registrado"
     evento = audit_calls[-1]
-    assert evento["recurso"] == "inscricao"
+    assert evento["entidade"] == "inscricao"
     assert evento["acao"] == "criada"
-    assert evento["payload"] == {"oficina_id": str(oficina.id), "aluno_id": payload["aluno_id"]}
+    assert evento["detalhes"] == {"oficina_id": str(oficina.id), "aluno_id": payload["aluno_id"]}
