@@ -34,3 +34,11 @@ jobs:
       - name: Build
         working-directory: frontend
         run: npm run build
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        working-directory: frontend
+        run: npx playwright test

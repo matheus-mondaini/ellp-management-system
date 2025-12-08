@@ -16,22 +16,33 @@ from .routers import (
     users,
 )
 
-app = FastAPI(title="ELLP Management System API", version="0.2.0")
-app.include_router(auth.router)
-app.include_router(certificados.router)
-app.include_router(dashboard.router)
-app.include_router(historicos.router)
-app.include_router(auditorias.router)
-app.include_router(inscricoes.router)
-app.include_router(oficinas.router)
-app.include_router(presencas.router)
-app.include_router(professores.router)
-app.include_router(relatorios.router)
-app.include_router(temas.router)
-app.include_router(users.router)
+
+def create_app() -> FastAPI:
+    """Instantiate FastAPI app with every router wired."""
+    application = FastAPI(title="ELLP Management System API", version="0.2.0")
+    application.include_router(auth.router)
+    application.include_router(certificados.router)
+    application.include_router(dashboard.router)
+    application.include_router(historicos.router)
+    application.include_router(auditorias.router)
+    application.include_router(inscricoes.router)
+    application.include_router(oficinas.router)
+    application.include_router(presencas.router)
+    application.include_router(professores.router)
+    application.include_router(relatorios.router)
+    application.include_router(temas.router)
+    application.include_router(users.router)
+
+    @application.get("/health", tags=["health"])
+    def health_check() -> dict[str, str]:
+        """Return basic metadata so CI smoke tests have a deterministic endpoint."""
+        return {
+            "status": "ok",
+            "service": "ellp-backend",
+            "version": application.version,
+        }
+
+    return application
 
 
-@app.get("/health", tags=["health"])
-def health_check() -> dict[str, str]:
-    """Return basic metadata so CI smoke tests have a deterministic endpoint."""
-    return {"status": "ok", "service": "ellp-backend", "version": app.version}
+app = create_app()

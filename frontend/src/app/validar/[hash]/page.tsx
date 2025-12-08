@@ -12,7 +12,8 @@ export default function CertificateValidationPage({ params }: Params) {
         Hash consultado: <span className="font-mono text-slate-900">{params.hash}</span>
       </p>
       <p className="text-sm text-slate-600">
-        Esta página consumirá o endpoint público `GET /certificados/validar/{{hash}}`.
+        Esta página consumirá o endpoint público{' '}
+        <code className="font-mono text-slate-900">GET /certificados/validar/&lt;hash&gt;</code>.
       </p>
     </section>
   );

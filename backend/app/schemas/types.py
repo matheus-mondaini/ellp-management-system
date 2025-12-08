@@ -32,6 +32,6 @@ class RelaxedEmailStr(str):
     def __get_pydantic_json_schema__(
         cls, core_schema_: core_schema.CoreSchema, handler: GetJsonSchemaHandler
     ) -> JsonSchemaValue:
-        json_schema = handler(core_schema_)
-        json_schema.update({"type": "string", "format": "email"})
-        return json_schema
+        # Returning a basic email schema avoids pydantic trying to introspect the
+        # custom plain validator, which is not JSON-serializable by default.
+        return {"type": "string", "format": "email"}
