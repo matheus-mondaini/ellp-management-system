@@ -47,6 +47,20 @@
 
 5. Run the backend with `uvicorn app.main:app --reload` (or `docker-compose up backend`). The new DB helper auto-enforces SSL for Supabase endpoints.
 
+### Local Supabase via CLI
+
+If you prefer to self-host Supabase locally during development:
+
+1. Install the CLI (`brew install supabase/tap/supabase` on macOS, or `npm install supabase --save-dev`). A Docker-compatible runtime (Docker Desktop, Rancher Desktop, Podman, or OrbStack) must be running.
+2. From the repo root, run `supabase init` once. This creates the `supabase/` directory with `config.toml` (already checked in) plus a `.temp/` folder that stays gitignored.
+3. Start the stack with `supabase start`. The CLI launches Postgres (port `54322`), the API/auth gateway (`http://127.0.0.1:54321`), Studio (`http://127.0.0.1:54323`), and the mail catcher (`http://127.0.0.1:54324`). Use `supabase stop` to tear it down.
+4. Run `supabase status` (or `supabase status -o json`) to grab the local anon/service role keys and connection strings. Point your `.env` files to:
+	* `SUPABASE_URL=http://127.0.0.1:54321`
+	* `SUPABASE_ANON_KEY=<local anon key from supabase status>`
+	* `SUPABASE_SERVICE_ROLE_KEY=<local service role key from supabase status>`
+	* `DATABASE_URL=postgresql://postgres:postgres@localhost:54322/postgres`
+5. (Optional) Use `supabase link --project-ref <production_ref>` so `supabase db diff/push` can compare your local schema to the hosted project. See the [Supabase local development guide](https://supabase.com/docs/guides/local-development) for advanced config and OAuth examples.
+
 ## Code Owners
 
 * Matheus Mondaini Alegre de Miranda
