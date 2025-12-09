@@ -3,20 +3,24 @@
 import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { useAuthStore } from "@/lib/auth-store";
 import { motion } from "framer-motion";
+import { useShallow } from "zustand/react/shallow";
+
+import { useAuthStore } from "@/lib/auth-store";
 
 export function AuthGate({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { accessToken, hydrated, status, user, syncUser, error } = useAuthStore((state) => ({
-    accessToken: state.accessToken,
-    hydrated: state.hydrated,
-    status: state.status,
-    user: state.user,
-    syncUser: state.syncUser,
-    error: state.error,
-  }));
+  const { accessToken, hydrated, status, user, syncUser, error } = useAuthStore(
+    useShallow((state) => ({
+      accessToken: state.accessToken,
+      hydrated: state.hydrated,
+      status: state.status,
+      user: state.user,
+      syncUser: state.syncUser,
+      error: state.error,
+    })),
+  );
 
   useEffect(() => {
     if (!hydrated || !accessToken || user) {

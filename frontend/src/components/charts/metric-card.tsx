@@ -7,7 +7,7 @@ export function MetricCard({ label, value, trend, icon }: { label: string; value
         <span>{label}</span>
         {icon}
       </div>
-      <p className="mt-3 text-3xl font-semibold text-white">{value}</p>
+      <div className="mt-3 text-3xl font-semibold text-white">{value}</div>
       {trend && <p className="text-sm text-emerald-300">{trend}</p>}
     </div>
   );
